@@ -1,0 +1,237 @@
+{
+  "job_1783813074584": {
+    "id": "job_1783813074584",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783813074584.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-11T20:37:54.584570685-03:00",
+    "updated_at": "2026-07-11T20:38:06.781579187-03:00",
+    "render_duration_ms": 12196,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "type": "text",
+              "content": "A jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+              "font_size": 32,
+              "color": "#FFFF00",
+              "x": 540,
+              "y": 1536,
+              "text_align": "center"
+            }
+          ]
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
+  },
+  "job_1783858989546": {
+    "id": "job_1783858989546",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783858989546.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T09:23:09.546720918-03:00",
+    "updated_at": "2026-07-12T09:23:12.274525845-03:00",
+    "render_duration_ms": 2727,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "type": "text",
+              "content": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+              "font_size": 32,
+              "color": "#FFFF00",
+              "x": 540,
+              "y": 1536,
+              "text_align": "center"
+            }
+          ]
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
+  },
+  "job_1783859118061": {
+    "id": "job_1783859118061",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783859118061.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T09:25:18.061513069-03:00",
+    "updated_at": "2026-07-12T09:25:20.307059058-03:00",
+    "render_duration_ms": 2245,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "type": "text",
+              "content": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+              "font_size": 32,
+              "color": "#FFFF00",
+              "x": 540,
+              "y": 1536,
+              "text_align": "center"
+            }
+          ]
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
+  },
+  "job_1783859135408": {
+    "id": "job_1783859135408",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783859135408.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T09:25:35.408288227-03:00",
+    "updated_at": "2026-07-12T09:25:37.433107407-03:00",
+    "render_duration_ms": 2024,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "type": "text",
+              "content": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+              "font_size": 32,
+              "color": "#FFFF00",
+              "x": 540,
+              "y": 1536,
+              "text_align": "center"
+            }
+          ]
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
+  },
+  "job_1783859151938": {
+    "id": "job_1783859151938",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783859151938.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T09:25:51.9389851-03:00",
+    "updated_at": "2026-07-12T09:25:55.061005829-03:00",
+    "render_duration_ms": 3121,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 1920
+            },
+            {
+              "type": "text",
+              "content": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+              "font_size": 32,
+              "color": "#FFFF00",
+              "x": 540,
+              "y": 1536,
+              "text_align": "center"
+            }
+          ]
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
+  }
+}
