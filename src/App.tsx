@@ -32,7 +32,7 @@ export default function App() {
       audioDuration: 4.8,
       takeDuration: 5.0,
       bgVolume: 15,
-      subtitleStyle: 'yellow',
+      voiceLang: 'pt',
     }
   ]);
 
@@ -142,7 +142,7 @@ export default function App() {
   // Poll jobs when there are active/processing items
   useEffect(() => {
     let interval: any;
-    const hasActiveJobs = Object.values(jobs).some(j => j.status === 'processing' || j.status === 'pending');
+    const hasActiveJobs = Object.values(jobs).some(j => j.status === 'processing' || j.status === 'rendering' || j.status === 'pending');
     
     if (serverConnected && hasActiveJobs) {
       interval = setInterval(() => {
@@ -184,7 +184,7 @@ export default function App() {
       audioDuration: 0,
       takeDuration: 3.0,
       bgVolume: 20,
-      subtitleStyle: 'yellow',
+      voiceLang: 'pt',
     };
     setScenes(prev => [...prev, newScene]);
     setActiveSceneId(newId);
@@ -261,7 +261,7 @@ export default function App() {
       }
     } else {
       // Offline / Unconnected fallback: Create local object URL
-      const localUrl = URL.createObjectURL(file);
+      const localUrl = URL.createObjectURL(file) + (file.type.startsWith('video') ? '#video' : '#image');
       newMediaFiles[slotIdx] = localUrl;
       showNotification('info', `Carregada mídia local offline: ${file.name}`);
     }
@@ -278,7 +278,8 @@ export default function App() {
         template_id: scene.template,
         video_settings: {
           resolution: scene.resolution,
-          subtitle_style: scene.subtitleStyle
+          subtitle_style: 'minimalist',
+          voice_lang: scene.voiceLang || 'pt'
         },
         assets: {
           media_urls: scene.mediaFiles,
@@ -353,23 +354,12 @@ export default function App() {
             }
           });
 
-          // Text overlay narration element
-          if (scene.narration.trim()) {
-            elements.push({
-              type: 'text',
-              content: scene.narration,
-              font_size: width > 1080 ? 48 : 32,
-              color: scene.subtitleStyle === 'yellow' ? '#FFFF00' : '#FFFFFF',
-              text_align: 'center',
-              x: width / 2,
-              y: height - (height * 0.2) // bottom overlay
-            });
-          }
-
           return {
             id: `cena_${String(i + 1).padStart(2, '0')}`,
             duration_ms: Math.round(scene.takeDuration * 1000),
             background_color: '#0F172A',
+            narration: scene.narration,
+            voice: scene.voiceLang ? { lang: scene.voiceLang } : { lang: 'pt' },
             elements
           };
         })

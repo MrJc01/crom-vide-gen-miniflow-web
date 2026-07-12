@@ -9,7 +9,6 @@ import {
   Mic, 
   Settings, 
   Volume2, 
-  Type, 
   AlertTriangle,
   Smartphone,
   Tv,
@@ -355,20 +354,20 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                   />
                 </div>
 
-                {/* Escolha das Legendas */}
+                {/* Escolha da Voz */}
                 <div className="flex flex-col gap-1">
                   <span className="font-bold uppercase tracking-wider text-slate-500 text-[9px] flex items-center gap-1">
-                    <Type className="w-3.5 h-3.5 text-indigo-400" />
-                    Estilo da Legenda
+                    <Mic className="w-3.5 h-3.5 text-indigo-400" />
+                    Voz da Narração (TTS)
                   </span>
                   <select
-                    value={scene.subtitleStyle}
-                    onChange={(e) => onUpdateField('subtitleStyle', e.target.value)}
+                    value={scene.voiceLang || 'pt'}
+                    onChange={(e) => onUpdateField('voiceLang', e.target.value)}
                     className="w-full bg-slate-900 text-slate-300 rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value="yellow">Destaque Amarelo</option>
-                    <option value="minimalist">Branco Minimalista</option>
-                    <option value="none">Sem Legendas</option>
+                    <option value="pt">Português (Brasil)</option>
+                    <option value="en">Inglês (Estados Unidos)</option>
+                    <option value="es">Espanhol (Espanha)</option>
                   </select>
                 </div>
               </div>
@@ -447,7 +446,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                         <div key={slotIdx} className="flex-1 h-full border-r border-slate-950/50 last:border-r-0 relative overflow-hidden bg-slate-950">
                           {hasMed ? (
                             isVid ? (
-                              <video src={srcUrl} autoPlay muted loop className="w-full h-full object-cover" />
+                              <video src={srcUrl} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                             ) : (
                               <img src={srcUrl} alt="" className="w-full h-full object-cover" />
                             )
@@ -479,6 +478,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                         autoPlay 
                         muted 
                         loop 
+                        playsInline
                         className="absolute inset-0 w-full h-full object-cover z-0" 
                       />
                     ) : (
@@ -556,19 +556,13 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 )}
 
                 {/* Subtitle Narration inside Phone */}
-                {scene.subtitleStyle !== 'none' && scene.narration.trim() && (
+                {scene.narration.trim() && (
                   <div className={`absolute left-1/2 -translate-x-1/2 w-[90%] z-20 text-center ${
                     scene.template === '1' ? 'bottom-[35%]' : 'bottom-[20%]'
                   }`}>
-                    {scene.subtitleStyle === 'yellow' ? (
-                      <span className="bg-slate-950/80 text-yellow-400 font-extrabold text-[9px] uppercase px-1.5 py-0.5 rounded border border-yellow-400/20 leading-tight block shadow-lg">
-                        {scene.narration}
-                      </span>
-                    ) : (
-                      <span className="text-white font-semibold text-[9px] drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.95)] block leading-tight px-1">
-                        {scene.narration}
-                      </span>
-                    )}
+                    <span className="text-white font-semibold text-[9px] drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.95)] block leading-tight px-1">
+                      {scene.narration}
+                    </span>
                   </div>
                 )}
               </div>
@@ -591,7 +585,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                         <div key={slotIdx} className="flex-1 h-full border-r border-slate-950/50 last:border-r-0 relative overflow-hidden bg-slate-955">
                           {hasMed ? (
                             isVid ? (
-                              <video src={srcUrl} autoPlay muted loop className="w-full h-full object-cover" />
+                              <video src={srcUrl} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                             ) : (
                               <img src={srcUrl} alt="" className="w-full h-full object-cover" />
                             )
@@ -623,6 +617,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                         autoPlay 
                         muted 
                         loop 
+                        playsInline
                         className="absolute inset-0 w-full h-full object-cover z-0" 
                       />
                     ) : (
@@ -664,17 +659,11 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 )}
 
                 {/* Subtitle Narration inside TV */}
-                {scene.subtitleStyle !== 'none' && scene.narration.trim() && (
+                {scene.narration.trim() && (
                   <div className="absolute bottom-[13%] left-1/2 -translate-x-1/2 w-[85%] z-20 text-center">
-                    {scene.subtitleStyle === 'yellow' ? (
-                      <span className="bg-slate-955/80 text-yellow-400 font-extrabold text-[9px] uppercase px-2 py-0.5 rounded leading-tight inline-block shadow-lg">
-                        {scene.narration}
-                      </span>
-                    ) : (
-                      <span className="text-white font-semibold text-[9px] drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.95)] inline-block leading-tight px-1">
-                        {scene.narration}
-                      </span>
-                    )}
+                    <span className="text-white font-semibold text-[9px] drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.95)] inline-block leading-tight px-1">
+                      {scene.narration}
+                    </span>
                   </div>
                 )}
               </div>

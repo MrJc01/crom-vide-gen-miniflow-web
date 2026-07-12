@@ -35,6 +35,7 @@ export const RenderMonitor: React.FC<RenderMonitorProps> = ({
           </span>
         );
       case 'processing':
+      case 'rendering':
         return (
           <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse">
             <Loader2 className="w-3 h-3 animate-spin" />

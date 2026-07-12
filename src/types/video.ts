@@ -7,7 +7,7 @@ export interface Scene {
   audioDuration: number;
   takeDuration: number;
   bgVolume: number; // 0 - 100
-  subtitleStyle: 'yellow' | 'minimalist' | 'none';
+  voiceLang?: 'pt' | 'en' | 'es';
 }
 
 export interface CardElement {
@@ -51,7 +51,7 @@ export interface VideoTemplate {
 export interface RenderJob {
   id: string;
   template_id: string;
-  status: 'pending' | 'processing' | 'done' | 'error';
+  status: 'pending' | 'processing' | 'rendering' | 'done' | 'error';
   file_path?: string;
   render_duration_ms?: number;
   created_at: string;

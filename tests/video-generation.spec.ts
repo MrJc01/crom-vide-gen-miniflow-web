@@ -197,9 +197,7 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
     expect(firstCard).toHaveProperty('elements');
     expect(Array.isArray(firstCard.elements)).toBe(true);
 
-    // Verify text element contains the narration
-    const textElement = firstCard.elements.find((el: any) => el.type === 'text');
-    expect(textElement).toBeTruthy();
-    expect(textElement.content).toContain('Texto de teste');
+    // Verify card contains the narration property
+    expect(firstCard.narration).toContain('Texto de teste');
   });
 });

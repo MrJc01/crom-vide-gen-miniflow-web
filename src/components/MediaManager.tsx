@@ -99,7 +99,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               >
                 {hasMedia ? (
                   videoElement ? (
-                    <video src={fullSrc} className="w-full h-full object-cover" muted />
+                    <video src={fullSrc} className="w-full h-full object-cover" muted autoPlay loop playsInline />
                   ) : (
                     <img src={fullSrc} alt="" className="w-full h-full object-cover" />
                   )
