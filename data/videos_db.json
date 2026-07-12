@@ -1458,5 +1458,125 @@
       "jpeg_quality": 2,
       "subtitles": true
     }
+  },
+  "job_1783870299697": {
+    "id": "job_1783870299697",
+    "template_id": "meu_video_projeto",
+    "status": "error",
+    "file_path": "outputs/output_meu_video_projeto_job_1783870299697.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T12:31:39.698369858-03:00",
+    "updated_at": "2026-07-12T12:33:56.611606826-03:00",
+    "error": "erro no CroMedia concat: track count mismatch: file tmp/cena_02.mp4 has 1 tracks, expected 2",
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1920,
+        "height": 1080
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 960,
+              "y": 540,
+              "width": 1920,
+              "height": 1080
+            }
+          ],
+          "narration": "A jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Gemini_Generated_Image_1kldjm1kldjm1kld.png",
+              "x": 180,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "video",
+              "content": "tmp/uploads/YTDown_YouTube_Como-a-sua-Nostalgia-pode-te-Salvar_Media_WqNjmmAXC_0_004_360p.mp4",
+              "x": 540,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/favicon (1).ico",
+              "x": 900,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            }
+          ],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": false
+    }
+  },
+  "job_1783870878024": {
+    "id": "job_1783870878024",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783870878024.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T12:41:18.025615216-03:00",
+    "updated_at": "2026-07-12T12:41:24.06900725-03:00",
+    "render_duration_ms": 3905,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
   }
 }
