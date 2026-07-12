@@ -96,19 +96,28 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
     await page.waitForLoadState('networkidle');
 
     // Open settings sidebar drawer to make render queue visible
-    const btnConfig = page.locator('button:has-text("Configurações")');
+    const btnConfig = page.locator('#btn-open-settings');
     await btnConfig.click();
 
     // Wait for server connection — the "Fila de Renderização" section only appears when connected
     const renderQueueHeading = page.locator('text=Fila de Renderização');
     await expect(renderQueueHeading).toBeVisible({ timeout: 8000 });
 
+    // Close the settings sidebar drawer
+    await page.locator('button:has-text("Fechar [X]")').click();
+
+    // Switch to step 2 (Cards) to make the card textarea visible
+    await page.locator('#step-tab-cards').click();
+
     // Write narration in the first card's textarea
     const textarea = page.locator('[data-id] textarea').first();
     await textarea.fill('Olá, este é um vídeo de teste gerado de forma totalmente automatizada.');
 
+    // Switch to step 3 (Renderizar) to expose compile actions
+    await page.locator('#step-tab-render').click();
+
     // Trigger full video render
-    const btnRender = page.locator('button:has-text("Renderizar Vídeo Completo")');
+    const btnRender = page.locator('#btn-trigger-render-wizard');
     await expect(btnRender).toBeEnabled({ timeout: 3000 });
     await btnRender.click();
 
@@ -148,12 +157,15 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
     // Wait for page to be fully stable (no more HMR reloads)
     await page.waitForTimeout(500);
 
+    // Switch to step 2 (Cards) to make the card textarea visible
+    await page.locator('#step-tab-cards').click();
+
     // Fill in a narration
     const textarea = page.locator('[data-id] textarea').first();
     await textarea.fill('Texto de teste para validação do formato engine.');
 
     // Open settings sidebar drawer to make JSON exporter button visible
-    const btnConfig = page.locator('button:has-text("Configurações")');
+    const btnConfig = page.locator('#btn-open-settings');
     await btnConfig.click();
 
     // Click the "Gerar Estrutura JSON" button
@@ -200,5 +212,67 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
 
     // Verify card contains the narration property
     expect(firstCard.narration).toContain('Texto de teste');
+  });
+
+  test('deve renderizar com sucesso um vídeo composto por múltiplos cards (3 cards) concatenados', async ({ page }) => {
+    test.setTimeout(120000);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Switch to step 2 (Cards)
+    await page.locator('#step-tab-cards').click();
+
+    // 1. First card narration
+    const textarea1 = page.locator('[data-id] textarea').first();
+    await textarea1.fill('Esta é a primeira cena do nosso roteiro com múltiplos cards.');
+
+    // 2. Add second card and fill narration
+    const btnNovaCena = page.locator('button:has-text("Nova Cena")');
+    await btnNovaCena.click();
+    await page.waitForTimeout(300); // Wait for state and animation
+    const textarea2 = page.locator('[data-id] textarea').first();
+    await textarea2.fill('Aqui temos o segundo card descrevendo a continuação da história.');
+
+    // 3. Add third card and fill narration
+    await btnNovaCena.click();
+    await page.waitForTimeout(300); // Wait for state and animation
+    const textarea3 = page.locator('[data-id] textarea').first();
+    await textarea3.fill('E por fim, o terceiro card encerrando a apresentação com sucesso.');
+
+    // Switch to step 3 (Renderizar) to expose compile actions
+    await page.locator('#step-tab-render').click();
+
+    // Trigger full video render
+    const btnRender = page.locator('#btn-trigger-render-wizard');
+    await expect(btnRender).toBeEnabled({ timeout: 3000 });
+    await btnRender.click();
+
+    // Wait for at least one job card with the project name to appear in the render queue
+    const jobTitle = page.locator('h4:has-text("meu_video_projeto")').first();
+    await expect(jobTitle).toBeVisible({ timeout: 8000 });
+
+    // Locate the newest job in the list
+    const newestJob = page.locator('div.job-item').filter({ hasText: 'meu_video_projeto' }).first();
+
+    console.log('Validando renderização de 3 cards com sucesso...');
+    const successBadge = newestJob.locator('span:has-text("CONCLUÍDO")');
+    await expect(successBadge).toBeVisible({ timeout: 60000 });
+
+    const downloadBtn = newestJob.locator('a:has-text("BAIXAR MP4")');
+    await expect(downloadBtn).toBeVisible();
+
+    // Verify the physical video file actually exists and is valid
+    const href = await downloadBtn.getAttribute('href');
+    expect(href).toBeTruthy();
+    
+    const filename = href!.split('/').pop();
+    expect(filename).toBeTruthy();
+    
+    const filePath = path.join(process.cwd(), 'outputs', filename!);
+    expect(fs.existsSync(filePath)).toBe(true);
+    
+    const stats = fs.statSync(filePath);
+    expect(stats.size).toBeGreaterThan(0);
+    console.log(`Sucesso: Vídeo multi-card gerado fisicamente em ${filePath} (${(stats.size / 1024).toFixed(1)} KB)`);
   });
 });

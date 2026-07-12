@@ -1793,5 +1793,882 @@
       "jpeg_quality": 2,
       "subtitles": true
     }
+  },
+  "job_1783874208664": {
+    "id": "job_1783874208664",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783874208664.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T13:36:48.664706015-03:00",
+    "updated_at": "2026-07-12T13:36:54.610718747-03:00",
+    "render_duration_ms": 4101,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783875468470": {
+    "id": "job_1783875468470",
+    "template_id": "meu_video_projeto",
+    "status": "error",
+    "file_path": "outputs/output_meu_video_projeto_job_1783875468470.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T13:57:48.471366836-03:00",
+    "updated_at": "2026-07-12T13:59:45.634734888-03:00",
+    "error": "erro no CroMedia concat: track 1 timescale mismatch: file tmp/cena_02.mp4 has 22050, expected 24000",
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1920,
+        "height": 1080
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 960,
+              "y": 540,
+              "width": 1920,
+              "height": 1080
+            }
+          ],
+          "narration": "A jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 3000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 180,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "video",
+              "content": "tmp/uploads/rejected-birb.mp4",
+              "x": 540,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design sem nome.png",
+              "x": 900,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            }
+          ],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783875879746": {
+    "id": "job_1783875879746",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783875879746.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:04:39.747377119-03:00",
+    "updated_at": "2026-07-12T14:04:43.789770202-03:00",
+    "render_duration_ms": 2576,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783877074017": {
+    "id": "job_1783877074017",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783877074017.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:24:34.017842353-03:00",
+    "updated_at": "2026-07-12T14:24:38.090228302-03:00",
+    "render_duration_ms": 2631,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783877116841": {
+    "id": "job_1783877116841",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783877116841.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:25:16.842496919-03:00",
+    "updated_at": "2026-07-12T14:27:49.631199434-03:00",
+    "render_duration_ms": 150829,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1920,
+        "height": 1080
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 960,
+              "y": 540,
+              "width": 1920,
+              "height": 1080
+            }
+          ],
+          "narration": "A jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview (1).png",
+              "x": 180,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/logo-primary.png",
+              "x": 540,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design sem nome.png",
+              "x": 900,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            }
+          ],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783877398669": {
+    "id": "job_1783877398669",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783877398669.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:29:58.670529533-03:00",
+    "updated_at": "2026-07-12T14:30:02.728049751-03:00",
+    "render_duration_ms": 2552,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783877978962": {
+    "id": "job_1783877978962",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783877978962.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:39:38.963488014-03:00",
+    "updated_at": "2026-07-12T14:39:44.258107764-03:00",
+    "render_duration_ms": 3874,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878054359": {
+    "id": "job_1783878054359",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878054359.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:40:54.360809417-03:00",
+    "updated_at": "2026-07-12T14:40:59.745543353-03:00",
+    "render_duration_ms": 3843,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878106390": {
+    "id": "job_1783878106390",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878106390.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:41:46.39098256-03:00",
+    "updated_at": "2026-07-12T14:41:51.504139993-03:00",
+    "render_duration_ms": 3707,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878270633": {
+    "id": "job_1783878270633",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878270633.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:44:30.633910941-03:00",
+    "updated_at": "2026-07-12T14:44:35.502542418-03:00",
+    "render_duration_ms": 3501,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878281749": {
+    "id": "job_1783878281749",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878281749.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:44:41.750533659-03:00",
+    "updated_at": "2026-07-12T14:44:53.476092844-03:00",
+    "render_duration_ms": 7038,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Esta é a primeira cena do nosso roteiro com múltiplos cards.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 6000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "narration": "Aqui temos o segundo card descrevendo a continuação da história.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_03",
+          "duration_ms": 6000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "narration": "E por fim, o terceiro card encerrando a apresentação com sucesso.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878305332": {
+    "id": "job_1783878305332",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878305332.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:45:05.333081163-03:00",
+    "updated_at": "2026-07-12T14:45:10.30750273-03:00",
+    "render_duration_ms": 3675,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878316448": {
+    "id": "job_1783878316448",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878316448.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:45:16.44967985-03:00",
+    "updated_at": "2026-07-12T14:45:26.962468435-03:00",
+    "render_duration_ms": 6522,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Esta é a primeira cena do nosso roteiro com múltiplos cards.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 6000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "narration": "Aqui temos o segundo card descrevendo a continuação da história.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_03",
+          "duration_ms": 6000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "narration": "E por fim, o terceiro card encerrando a apresentação com sucesso.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878369247": {
+    "id": "job_1783878369247",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878369247.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:46:09.248194962-03:00",
+    "updated_at": "2026-07-12T14:46:14.069589296-03:00",
+    "render_duration_ms": 3493,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878380196": {
+    "id": "job_1783878380196",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878380196.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:46:20.197010792-03:00",
+    "updated_at": "2026-07-12T14:46:30.526517674-03:00",
+    "render_duration_ms": 6408,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Esta é a primeira cena do nosso roteiro com múltiplos cards.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 6000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "narration": "Aqui temos o segundo card descrevendo a continuação da história.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_03",
+          "duration_ms": 6000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "narration": "E por fim, o terceiro card encerrando a apresentação com sucesso.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783878448276": {
+    "id": "job_1783878448276",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783878448276.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T14:47:28.277715592-03:00",
+    "updated_at": "2026-07-12T14:47:33.408527954-03:00",
+    "render_duration_ms": 3809,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783890979571": {
+    "id": "job_1783890979571",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783890979571.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T18:16:19.572532121-03:00",
+    "updated_at": "2026-07-12T18:16:29.877384441-03:00",
+    "render_duration_ms": 8513,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 8000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Primeira cena de introduA jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 3000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_03",
+          "duration_ms": 3000,
+          "background_color": "#0F172A",
+          "elements": [],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
   }
 }

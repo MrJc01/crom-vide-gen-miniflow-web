@@ -19,7 +19,8 @@ import {
   Mic,
   Activity,
   Sun,
-  Moon
+  Moon,
+  Power
 } from 'lucide-react';
 
 const DEFAULT_SERVER_URL = 'http://localhost:8080';
@@ -55,6 +56,7 @@ export default function App() {
   const [apiUrl, setApiUrl] = useState(DEFAULT_SERVER_URL);
   const [isApiUrlEditing, setIsApiUrlEditing] = useState(false);
   const [serverConnected, setServerConnected] = useState(false);
+  const [isPowerLoading, setIsPowerLoading] = useState(false);
 
   // Render & Exporter states
   const [jsonFormat, setJsonFormat] = useState<'simplified' | 'engine'>('simplified');
@@ -70,6 +72,7 @@ export default function App() {
   // Active scene state
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'home' | 'video-studio' | 'voice-studio' | 'jobs'>('video-studio');
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -108,7 +111,7 @@ export default function App() {
   };
 
   // Check connection to videogen-server
-  const checkConnection = async (urlToCheck: string) => {
+  const checkConnection = async (urlToCheck: string, silent = false) => {
     try {
       // Try fetching templates api to verify server presence
       const res = await fetch(`${urlToCheck}/api/templates`, { mode: 'cors' });
@@ -117,13 +120,53 @@ export default function App() {
         if (Array.isArray(data)) {
           setAvailableTemplates(data);
         }
-        setServerConnected(true);
-        showNotification('success', 'Conectado ao videogen-server com sucesso!');
+        setServerConnected(prev => {
+          if (!prev && !silent) {
+            showNotification('success', 'Conectado ao videogen-server com sucesso!');
+          }
+          return true;
+        });
       } else {
         setServerConnected(false);
       }
     } catch (e) {
       setServerConnected(false);
+    }
+  };
+
+  useEffect(() => {
+    checkConnection(apiUrl);
+    const interval = setInterval(() => {
+      checkConnection(apiUrl, true);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [apiUrl]);
+
+  const handleServerPower = async (action: 'start' | 'stop') => {
+    setIsPowerLoading(true);
+    try {
+      const response = await fetch('/__server_control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      const data = await response.json();
+      if (data.success) {
+        // Wait a bit and check connection
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await checkConnection(apiUrl);
+        showNotification(
+          action === 'start' ? 'success' : 'info',
+          action === 'start' ? 'Servidor iniciado com sucesso!' : 'Servidor desligado com sucesso!'
+        );
+      } else {
+        showNotification('error', `Erro ao ${action === 'start' ? 'iniciar' : 'desligar'} o servidor.`);
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('error', 'Falha ao se comunicar com o controle do servidor.');
+    } finally {
+      setIsPowerLoading(false);
     }
   };
 
@@ -142,6 +185,7 @@ export default function App() {
         setJobs(data);
       }
     } catch (e) {
+      setServerConnected(false);
       showNotification('error', 'Falha ao buscar fila de renderização.');
     } finally {
       setIsRefreshingJobs(false);
@@ -510,7 +554,7 @@ export default function App() {
       )}
 
       {/* SIDEBAR NAVIGATION */}
-      <aside className={`w-full md:w-64 border-b md:border-b-0 md:border-r flex flex-col py-6 px-4 shrink-0 gap-6 transition-all duration-250 ${
+      <aside className={`w-full md:fixed md:top-0 md:left-0 md:h-screen md:w-64 border-b md:border-b-0 md:border-r flex flex-col py-6 px-4 shrink-0 gap-6 transition-all duration-250 z-30 ${
         theme === 'dark' ? 'bg-[#0b0c10] border-white/[0.04]' : 'bg-white border-slate-100 shadow-[2px_0_8px_rgba(0,0,0,0.01)]'
       }`}>
         {/* Brand & Theme Switcher */}
@@ -656,11 +700,42 @@ export default function App() {
               </span>
             )}
           </div>
+
+          {/* Controls to turn server on/off */}
+          <div className={`mt-1.5 pt-1.5 border-t flex gap-1.5 ${theme === 'dark' ? 'border-white/[0.04]' : 'border-slate-200/40'}`}>
+            <button
+              type="button"
+              onClick={() => handleServerPower(serverConnected ? 'stop' : 'start')}
+              disabled={isPowerLoading}
+              className={`w-full py-1 px-2 rounded-lg text-[9px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 disabled:opacity-50 ${
+                serverConnected
+                  ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30'
+                  : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30'
+              }`}
+            >
+              {isPowerLoading ? (
+                <>
+                  <Loader2 className="w-2.5 h-2.5 animate-spin shrink-0" />
+                  <span>Aguarde...</span>
+                </>
+              ) : serverConnected ? (
+                <>
+                  <Power className="w-2.5 h-2.5 shrink-0" />
+                  <span>Desligar</span>
+                </>
+              ) : (
+                <>
+                  <Power className="w-2.5 h-2.5 shrink-0" />
+                  <span>Ligar Servidor</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 flex flex-col p-6 sm:p-8 w-full max-w-6xl overflow-y-auto min-w-0">
+      <main className="flex-1 flex flex-col p-6 sm:p-8 w-full max-w-6xl overflow-y-auto min-w-0 md:ml-64 md:h-screen">
         {/* Render pages depending on currentTab */}
         
         {/* PAGE 1: HOME/DASHBOARD */}
@@ -852,6 +927,7 @@ export default function App() {
               
               <div className="flex items-center gap-2">
                 <button
+                  id="btn-open-settings"
                   onClick={() => setIsSidebarOpen(true)}
                   className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 border border-transparent ${
                     theme === 'dark' 
@@ -864,6 +940,231 @@ export default function App() {
                 </button>
               </div>
             </div>
+
+            {/* Stepper Header Progress */}
+            <div className={`rounded-2xl p-4 flex flex-col gap-2 ${
+              theme === 'dark' ? 'bg-[#0b0c10]/40 border border-white/[0.04]' : 'bg-slate-50 border border-slate-200/40'
+            }`}>
+              <div className="flex items-center justify-center py-2 relative">
+                <div className="flex items-center gap-4 w-full max-w-md justify-between relative z-10">
+                  {/* Horizontal progress bar background */}
+                  <div className={`absolute top-1/2 left-0 right-0 h-[2px] -translate-y-1/2 -z-10 ${
+                    theme === 'dark' ? 'bg-slate-800/80' : 'bg-slate-200'
+                  }`}>
+                    <div 
+                      className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-300"
+                      style={{ width: wizardStep === 1 ? '0%' : wizardStep === 2 ? '50%' : '100%' }}
+                    />
+                  </div>
+
+                  {/* Step 1 indicator */}
+                  <button
+                    id="step-tab-config"
+                    onClick={() => setWizardStep(1)}
+                    className="flex flex-col items-center gap-1.5 focus:outline-none cursor-pointer"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${
+                      wizardStep >= 1
+                        ? 'bg-indigo-650 border-indigo-550 text-white shadow-md shadow-indigo-500/20'
+                        : theme === 'dark' ? 'bg-[#0f1015] border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-400'
+                    }`}>
+                      1
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-wider uppercase ${
+                      wizardStep === 1 ? 'text-indigo-400' : 'text-slate-500'
+                    }`}>Configurações</span>
+                  </button>
+
+                  {/* Step 2 indicator */}
+                  <button
+                    id="step-tab-cards"
+                    onClick={() => setWizardStep(2)}
+                    className="flex flex-col items-center gap-1.5 focus:outline-none cursor-pointer"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${
+                      wizardStep >= 2
+                        ? 'bg-indigo-650 border-indigo-550 text-white shadow-md shadow-indigo-500/20'
+                        : theme === 'dark' ? 'bg-[#0f1015] border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-400'
+                    }`}>
+                      2
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-wider uppercase ${
+                      wizardStep === 2 ? 'text-indigo-400' : 'text-slate-500'
+                    }`}>Cards & Timeline</span>
+                  </button>
+
+                  {/* Step 3 indicator */}
+                  <button
+                    id="step-tab-render"
+                    onClick={() => setWizardStep(3)}
+                    className="flex flex-col items-center gap-1.5 focus:outline-none cursor-pointer"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${
+                      wizardStep >= 3
+                        ? 'bg-indigo-655 border-indigo-555 text-white shadow-md shadow-indigo-500/20'
+                        : theme === 'dark' ? 'bg-[#0f1015] border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-400'
+                    }`}>
+                      3
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-wider uppercase ${
+                      wizardStep === 3 ? 'text-indigo-400' : 'text-slate-500'
+                    }`}>Renderizar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 1: CONFIGURAÇÕES */}
+            {wizardStep === 1 && (
+              <div className="flex flex-col gap-6 animate-fadeIn">
+                <div className={`rounded-2xl p-6 shadow-xl flex flex-col gap-5 border border-transparent ${
+                  theme === 'dark' ? 'bg-[#161720] text-slate-200' : 'bg-white'
+                }`}>
+                  <div className={`border-b pb-3 flex items-center gap-2 ${theme === 'dark' ? 'border-white/[0.05]' : 'border-slate-100'}`}>
+                    <Settings className="w-5 h-5 text-indigo-400" />
+                    <h3 className={`text-sm font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
+                      Parâmetros e Configurações do Vídeo
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Project Name */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">
+                        Identificador do Template
+                      </label>
+                      <input
+                        type="text"
+                        value={projectName}
+                        onChange={(e) => setProjectName(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                        className={`w-full border rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all ${
+                          theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] text-slate-200 focus:bg-transparent' : 'bg-[#f8f9fa] border-slate-200/60 text-slate-800 focus:bg-white'
+                        }`}
+                        placeholder="Ex: meu_video_projeto..."
+                      />
+                    </div>
+
+                    {/* Proporção e Resolução */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">
+                        Proporção e Resolução
+                      </label>
+                      <select
+                        value={globalResolution}
+                        onChange={(e) => setGlobalResolution(e.target.value)}
+                        className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer transition-all ${
+                          theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] text-slate-350' : 'bg-[#f8f9fa] border-slate-200/60 text-slate-800'
+                        }`}
+                      >
+                        <option value="1080x1920">Vertical (1080x1920) • Reels / Shorts</option>
+                        <option value="1920x1080">Horizontal (1920x1080) • YouTube / Full HD</option>
+                        <option value="2160x3840">Vertical 4K (2160x3840)</option>
+                        <option value="3840x2160">Horizontal 4K (3840x2160)</option>
+                      </select>
+                    </div>
+
+                    {/* Taxa de FPS */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">
+                        Taxa de FPS (Quadros por segundo)
+                      </label>
+                      <select
+                        value={globalFps}
+                        onChange={(e) => setGlobalFps(parseInt(e.target.value))}
+                        className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer transition-all ${
+                          theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] text-slate-350' : 'bg-[#f8f9fa] border-slate-200/60 text-slate-800'
+                        }`}
+                      >
+                        <option value="24">24 fps (Cinema)</option>
+                        <option value="30">30 fps (Padrão)</option>
+                        <option value="60">60 fps (Fluído)</option>
+                      </select>
+                    </div>
+
+                    {/* Qualidade JPEG */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">
+                        Qualidade de Exportação JPEG (1-31)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="31"
+                        value={jpegQuality}
+                        onChange={(e) => setJpegQuality(Math.min(31, Math.max(1, parseInt(e.target.value) || 2)))}
+                        className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono transition-all ${
+                          theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] text-slate-205' : 'bg-[#f8f9fa] border-slate-200/60 text-slate-800'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Background audio */}
+                    <div className="flex flex-col gap-1.5 md:col-span-2">
+                      <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">
+                        Trilha Sonora de Fundo (BGM)
+                      </label>
+                      <input
+                        type="text"
+                        value={globalBgmUrl}
+                        onChange={(e) => setGlobalBgmUrl(e.target.value)}
+                        className={`w-full border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono transition-all ${
+                          theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] text-slate-205' : 'bg-[#f8f9fa] border-slate-200/60 text-slate-800'
+                        }`}
+                        placeholder="Ex: tmp/uploads/bg_music.mp3 ou URL de áudio"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Checkboxes parameters */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                    <label className={`flex items-center gap-3 cursor-pointer select-none border rounded-xl px-4 py-3 transition-colors ${
+                      theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] hover:bg-white/[0.02]' : 'bg-[#f8f9fa] border-slate-200/40 hover:bg-slate-100'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        checked={hwAccel}
+                        onChange={(e) => setHwAccel(e.target.checked)}
+                        className="w-4 h-4 accent-indigo-650 rounded cursor-pointer"
+                      />
+                      <div className="flex flex-col">
+                        <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-850'}`}>Aceleração por GPU</span>
+                        <span className="text-[9px] text-slate-500">Acelera o processamento com hardware NVENC</span>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-center gap-3 cursor-pointer select-none border rounded-xl px-4 py-3 transition-colors ${
+                      theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05] hover:bg-white/[0.02]' : 'bg-[#f8f9fa] border-slate-200/40 hover:bg-slate-100'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        checked={globalSubtitles}
+                        onChange={(e) => setGlobalSubtitles(e.target.checked)}
+                        className="w-4 h-4 accent-indigo-650 rounded cursor-pointer"
+                      />
+                      <div className="flex flex-col">
+                        <span className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-850'}`}>Habilitar Legendas Globais</span>
+                        <span className="text-[9px] text-slate-500">Desenha legendas sincronizadas nas cenas finais</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Footer Navigation */}
+                <div className="flex justify-end pt-2">
+                  <button
+                    id="btn-next-to-cards"
+                    onClick={() => setWizardStep(2)}
+                    className="py-3 px-6 bg-indigo-650 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-2"
+                  >
+                    Avançar para Cards &rarr;
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: CARDS & TIMELINE */}
+            {wizardStep === 2 && (
+              <>
 
             {/* Active Card */}
             {activeScene ? (
@@ -978,8 +1279,167 @@ export default function App() {
                 </div>
               </div>
             )}
+            
+            {/* Footer Navigation for Step 2 */}
+            <div className="flex justify-between pt-2">
+              <button
+                id="btn-back-to-config"
+                onClick={() => setWizardStep(1)}
+                className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all border active:scale-95 cursor-pointer text-center ${
+                  theme === 'dark' 
+                    ? 'bg-slate-800 border-slate-700 hover:bg-slate-750 text-slate-205' 
+                    : 'bg-[#f0f2f5] border-transparent hover:bg-slate-200 text-slate-800'
+                }`}
+              >
+                &larr; Voltar para Configurações
+              </button>
+              <button
+                id="btn-next-to-render"
+                onClick={() => setWizardStep(3)}
+                className="py-3 px-6 bg-indigo-650 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-2"
+              >
+                Avançar para Renderizar &rarr;
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* STEP 3: RENDERIZAR */}
+        {wizardStep === 3 && (
+          <div className="flex flex-col gap-6 animate-fadeIn">
+            <div className={`rounded-2xl p-6 shadow-xl flex flex-col gap-5 border border-transparent ${
+              theme === 'dark' ? 'bg-[#161720] text-slate-200' : 'bg-white'
+            }`}>
+              <div className={`border-b pb-3 flex items-center gap-2 ${theme === 'dark' ? 'border-white/[0.05]' : 'border-slate-100'}`}>
+                <Sparkles className="w-5 h-5 text-indigo-400" />
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
+                  Revisão & Renderização Final
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Summary statistics info */}
+                <div className="flex flex-col gap-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Resumo do Projeto
+                  </h4>
+                  <div className={`rounded-xl p-4 flex flex-col gap-3 text-xs border ${
+                    theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05]' : 'bg-[#f8f9fa] border-slate-200/40'
+                  }`}>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400 font-medium">Nome do Projeto:</span>
+                      <span className="font-mono font-semibold">{projectName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400 font-medium">Resolução final:</span>
+                      <span className="font-semibold">{globalResolution}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400 font-medium">Taxa de Quadros (FPS):</span>
+                      <span className="font-semibold">{globalFps} fps</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400 font-medium">Total de Cenas:</span>
+                      <span className="font-semibold">{scenes.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400 font-medium">Duração Estimada:</span>
+                      <span className="font-mono font-semibold">
+                        {(scenes.reduce((acc, s) => acc + s.takeDuration, 0)).toFixed(1)}s
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions and visual preview triggers */}
+                <div className="flex flex-col gap-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Ações de Compilação
+                  </h4>
+                  
+                  <div className="flex flex-col gap-3">
+                    <button
+                      type="button"
+                      onClick={triggerPreview}
+                      disabled={!serverConnected || isPreviewLoading}
+                      className={`w-full py-3 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 ${
+                        theme === 'dark' 
+                          ? 'bg-[#0c0d12] border-white/[0.05] text-indigo-400 hover:bg-[#12131a]' 
+                          : 'bg-white border-slate-200 text-indigo-650 hover:bg-slate-50'
+                      }`}
+                    >
+                      {isPreviewLoading ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Gerando Preview...
+                        </>
+                      ) : (
+                        <>
+                          <Maximize2 className="w-3.5 h-3.5" />
+                          Visualizar Primeiro Frame
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      id="btn-trigger-render-wizard"
+                      type="button"
+                      onClick={() => {
+                        triggerRender();
+                        // Switch to Render Jobs tab automatically!
+                        setCurrentTab('jobs');
+                      }}
+                      disabled={!serverConnected || scenes.length === 0}
+                      className="w-full py-4 px-4 rounded-xl text-xs font-extrabold text-white bg-indigo-650 hover:bg-indigo-600 shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer animate-pulse"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      RENDERIZAR VÍDEO COMPLETO
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Frame Preview container */}
+              {previewImage && (
+                <div className={`mt-2 p-3.5 rounded-2xl relative group border ${
+                  theme === 'dark' ? 'bg-[#0c0d12] border-white/[0.05]' : 'bg-[#f8f9fa] border-slate-200/60'
+                }`}>
+                  <span className="absolute top-5 left-5 bg-slate-950/90 text-indigo-400 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/20">
+                    PRÉVIA DO FRAME 1
+                  </span>
+                  <img
+                    src={previewImage}
+                    alt="Frame preview"
+                    className="w-full max-w-lg mx-auto h-auto rounded-xl border border-slate-950 shadow-2xl"
+                  />
+                  <button
+                    onClick={() => setPreviewImage(null)}
+                    className="absolute top-5 right-5 bg-slate-950/90 text-slate-400 hover:text-white p-1 rounded-md text-[8px] cursor-pointer"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Navigation */}
+            <div className="flex justify-between pt-2">
+              <button
+                id="btn-back-to-cards"
+                onClick={() => setWizardStep(2)}
+                className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all border active:scale-95 cursor-pointer text-center ${
+                  theme === 'dark' 
+                    ? 'bg-slate-800 border-slate-700 hover:bg-slate-750 text-slate-205' 
+                    : 'bg-[#f0f2f5] border-transparent hover:bg-slate-200 text-slate-800'
+                }`}
+              >
+                &larr; Voltar para Cards
+              </button>
+            </div>
           </div>
         )}
+      </div>
+    )}
 
         {/* PAGE 3: VOICE STUDIO */}
         {currentTab === 'voice-studio' && (
@@ -1301,6 +1761,7 @@ export default function App() {
 
               {/* Render Trigger */}
               <button
+                id="btn-trigger-render-sidebar"
                 type="button"
                 onClick={triggerRender}
                 disabled={!serverConnected || scenes.length === 0}

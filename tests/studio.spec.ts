@@ -5,6 +5,8 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the Vite dev server homepage
     await page.goto('/');
+    // Switch to step 2 (Cards) to ensure scene cards and timeline are visible
+    await page.locator('#step-tab-cards').click();
   });
 
   test('deve renderizar a interface do estúdio e carregar os elementos iniciais', async ({ page }) => {
@@ -12,7 +14,7 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
     await expect(page.locator('h1')).toContainText('AI Video Builder Studio');
     
     // Open sidebar drawer to view global settings
-    const btnConfig = page.locator('button:has-text("Configurações")');
+    const btnConfig = page.locator('#btn-open-settings');
     await btnConfig.click();
 
     // Verify global settings section
@@ -99,7 +101,7 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
 
   test('deve compilar e exibir a estrutura JSON ao clicar no exportador', async ({ page }) => {
     // Open settings sidebar drawer
-    const btnConfig = page.locator('button:has-text("Configurações")');
+    const btnConfig = page.locator('#btn-open-settings');
     await btnConfig.click();
 
     // Click the "Gerar Estrutura JSON" button
