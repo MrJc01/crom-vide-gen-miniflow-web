@@ -32,7 +32,7 @@ export default function App() {
       audioDuration: 4.8,
       takeDuration: 5.0,
       bgVolume: 15,
-      voiceLang: 'pt',
+      voiceLang: 'pt-BR-FranciscaNeural',
     }
   ]);
 
@@ -184,7 +184,7 @@ export default function App() {
       audioDuration: 0,
       takeDuration: 3.0,
       bgVolume: 20,
-      voiceLang: 'pt',
+      voiceLang: 'pt-BR-FranciscaNeural',
     };
     setScenes(prev => [...prev, newScene]);
     setActiveSceneId(newId);

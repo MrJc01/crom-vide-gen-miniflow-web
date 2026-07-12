@@ -7,7 +7,7 @@ export interface Scene {
   audioDuration: number;
   takeDuration: number;
   bgVolume: number; // 0 - 100
-  voiceLang?: 'pt' | 'en' | 'es';
+  voiceLang?: string;
 }
 
 export interface CardElement {

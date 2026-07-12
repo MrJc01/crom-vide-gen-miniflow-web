@@ -361,13 +361,18 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                     Voz da Narração (TTS)
                   </span>
                   <select
-                    value={scene.voiceLang || 'pt'}
+                    value={scene.voiceLang || 'pt-BR-FranciscaNeural'}
                     onChange={(e) => onUpdateField('voiceLang', e.target.value)}
                     className="w-full bg-slate-900 text-slate-300 rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value="pt">Português (Brasil)</option>
-                    <option value="en">Inglês (Estados Unidos)</option>
-                    <option value="es">Espanhol (Espanha)</option>
+                    <option value="pt-BR-FranciscaNeural">Francisca (Mulher - Edge-TTS Online)</option>
+                    <option value="pt-BR-AntonioNeural">Antonio (Homem - Edge-TTS Online)</option>
+                    <option value="pt-BR-ThalitaMultilingualNeural">Thalita (Multilíngue - Edge-TTS Online)</option>
+                    <option value="pt_BR-faber-medium.onnx">Faber (Voz Local - Piper Offline)</option>
+                    <option value="en-US-GuyNeural">Guy (Inglês Masculino - Edge-TTS Online)</option>
+                    <option value="en-US-JennyNeural">Jenny (Inglês Feminino - Edge-TTS Online)</option>
+                    <option value="es-ES-AlvaroNeural">Alvaro (Espanhol Masculino - Edge-TTS Online)</option>
+                    <option value="es-ES-ElviraNeural">Elvira (Espanhol Feminino - Edge-TTS Online)</option>
                   </select>
                 </div>
               </div>

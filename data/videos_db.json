@@ -1118,5 +1118,89 @@
       "hwaccel": false,
       "jpeg_quality": 2
     }
+  },
+  "job_1783867491293": {
+    "id": "job_1783867491293",
+    "template_id": "meu_video_projeto",
+    "status": "error",
+    "file_path": "outputs/output_meu_video_projeto_job_1783867491293.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T11:44:51.2941723-03:00",
+    "updated_at": "2026-07-12T11:44:51.46455636-03:00",
+    "error": "erro ao gerar TTS para o card cena_01: status de resposta do TTS inválido: 400",
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
+  },
+  "job_1783867562120": {
+    "id": "job_1783867562120",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783867562120.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T11:46:02.120839866-03:00",
+    "updated_at": "2026-07-12T11:46:07.297448159-03:00",
+    "render_duration_ms": 4654,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1080,
+        "height": 1920
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 7000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format\u0026fit=crop\u0026w=300\u0026q=80",
+              "x": 540,
+              "y": 960,
+              "width": 1080,
+              "height": 1920
+            }
+          ],
+          "narration": "Olá, este é um vídeo de teste gerado de forma totalmente automatizada.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2
+    }
   }
 }
