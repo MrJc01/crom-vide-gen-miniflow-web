@@ -7,6 +7,7 @@ interface MediaManagerProps {
   onUpdateMediaForSlot: (slotIdx: number, value: string) => void;
   onAddMediaForSlot: (slotIdx: number, files: FileList) => void;
   apiUrl: string;
+  theme?: 'light' | 'dark';
 }
 
 export const MediaManager: React.FC<MediaManagerProps> = ({
@@ -15,6 +16,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   onUpdateMediaForSlot,
   onAddMediaForSlot,
   apiUrl,
+  theme = 'dark',
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeSlotIdx, setActiveSlotIdx] = useState<number | null>(null);
@@ -33,6 +35,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   };
 
   const slots = getSlotsForTemplate(template);
+
+  const rowBg = theme === 'dark' ? 'bg-slate-950' : 'bg-[#f0f2f5]';
+  const labelColor = theme === 'dark' ? 'text-slate-400' : 'text-slate-600';
+  const primaryText = theme === 'dark' ? 'text-white' : 'text-slate-800';
+  const buttonBg = theme === 'dark' ? 'bg-slate-900 hover:bg-slate-850 text-slate-300' : 'bg-white hover:bg-slate-200/80 text-slate-700 shadow-sm border border-slate-100/50';
 
   const triggerUploadForSlot = (slotIdx: number) => {
     setActiveSlotIdx(slotIdx);
@@ -67,7 +74,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between pb-1.5">
-        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+        <label className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${labelColor}`}>
           <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
           Substituição de Mídias ({slots.length} slot/s)
         </label>
@@ -85,7 +92,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
           return (
             <div 
               key={idx} 
-              className="bg-slate-950 rounded-xl p-3 flex items-center justify-between gap-3 shadow-inner transition-colors"
+              className={`rounded-xl p-3 flex items-center justify-between gap-3 shadow-inner transition-colors ${rowBg}`}
             >
               {/* Left Side: Thumbnail Preview */}
               <div 
@@ -118,10 +125,10 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               {/* Center Side: Slot Info & Controls */}
               <div className="flex-1 flex flex-col justify-between h-14 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-extrabold text-white block uppercase tracking-wider truncate">
+                  <span className={`text-[10px] font-extrabold block uppercase tracking-wider truncate ${primaryText}`}>
                     {slot.label}
                   </span>
-                  <span className="text-[8px] text-slate-500 font-mono">
+                  <span className="text-[8px] text-slate-550 font-mono">
                     {hasMedia ? (videoElement ? 'VÍDEO' : 'IMAGEM') : isColor ? 'SÓLIDO' : isTrans ? 'TRANSP.' : 'ENGINE'}
                   </span>
                 </div>
@@ -132,20 +139,20 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                   <button
                     type="button"
                     onClick={() => triggerUploadForSlot(idx)}
-                    className="px-2 py-1 text-[9px] font-bold text-slate-300 hover:text-indigo-400 bg-slate-900 hover:bg-slate-850 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                    className={`px-2 py-1 text-[9px] font-bold rounded-md transition-colors flex items-center gap-1 cursor-pointer ${buttonBg}`}
                   >
                     Mídia
                   </button>
 
                   {/* Solid Color Picker input */}
-                  <div className="relative flex items-center bg-slate-900 hover:bg-slate-850 rounded-md px-1.5 py-0.5 group/picker cursor-pointer">
+                  <div className={`relative flex items-center rounded-md px-1.5 py-0.5 group/picker cursor-pointer ${buttonBg}`}>
                     <input
                       type="color"
                       value={isColor ? fileSrc : '#4f46e5'}
                       onChange={(e) => onUpdateMediaForSlot(idx, e.target.value)}
                       className="w-3.5 h-3.5 border-0 p-0 cursor-pointer bg-transparent rounded"
                     />
-                    <span className="text-[9px] font-bold text-slate-355 ml-1">Cor</span>
+                    <span className="text-[9px] font-bold ml-1">Cor</span>
                   </div>
 
                   {/* Transparency Trigger */}
@@ -155,7 +162,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                     className={`px-2 py-1 text-[9px] font-bold rounded-md transition-colors cursor-pointer ${
                       isTrans 
                         ? 'text-indigo-400 bg-indigo-950/20' 
-                        : 'text-slate-300 bg-slate-900 hover:bg-slate-850'
+                        : buttonBg
                     }`}
                   >
                     Transp.

@@ -35,6 +35,7 @@ interface SceneCardProps {
   isLast: boolean;
   templates?: string[];
   subtitlesEnabled?: boolean;
+  theme?: 'light' | 'dark';
 }
 
 interface TemplateGuide {
@@ -115,11 +116,26 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   isFirst,
   isLast,
   templates = ['10_best', 'breaking_news', 'multiscreen', 'teste', 'trendy_stories'],
-  subtitlesEnabled = true
+  subtitlesEnabled = true,
+  theme = 'dark'
 }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isAudioPreviewLoading, setIsAudioPreviewLoading] = useState(false);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const inputBg = theme === 'dark' ? 'bg-[#0c0d12] border border-white/[0.05] text-slate-200 placeholder:text-slate-600 focus:border-indigo-500/50' : 'bg-[#f8f9fa] border border-slate-200/60 text-slate-800 placeholder:text-slate-450 focus:bg-white focus:border-indigo-500';
+  const selectBg = theme === 'dark' ? 'bg-[#0c0d12] border border-white/[0.05] text-slate-350 hover:bg-[#12131a]' : 'bg-[#f8f9fa] border border-slate-200/60 text-slate-700 hover:bg-[#e9ecef]';
+  const containerBg = theme === 'dark' ? 'bg-[#0c0d12] border border-white/[0.05]' : 'bg-[#f8f9fa] border border-slate-200/60';
+  const borderBg = theme === 'dark' ? 'border-white/[0.05]' : 'border-slate-200/40';
+  const labelColor = theme === 'dark' ? 'text-slate-400' : 'text-slate-655';
+  const subtextColor = theme === 'dark' ? 'text-slate-500' : 'text-slate-450';
+  const secondText = theme === 'dark' ? 'text-slate-305' : 'text-slate-705';
+  const disabledColor = theme === 'dark' ? 'text-slate-700' : 'text-slate-350';
+  const itemHover = theme === 'dark' ? 'text-slate-400 hover:text-white hover:bg-slate-900' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200';
+  const badgeBg = theme === 'dark' ? 'text-slate-400 bg-[#0c0d12] border border-white/[0.05]' : 'text-slate-600 bg-[#f8f9fa] border border-slate-200/60';
+  const detailsBg = theme === 'dark' ? 'bg-[#0c0d12]/40' : 'bg-[#f8f9fa]/50';
+  const detailsHeader = theme === 'dark' ? 'bg-[#0c0d12]/60 text-slate-450 hover:bg-[#12131a]/80' : 'bg-[#f1f3f5] text-slate-600 hover:bg-slate-200/80';
+  const detailsBody = theme === 'dark' ? 'bg-transparent' : 'bg-white/40';
+  const divider = theme === 'dark' ? 'border-white/[0.05]' : 'border-slate-200/50';
 
   // Clear stale audio preview url if narration or voice selection changes
   useEffect(() => {
@@ -208,19 +224,21 @@ export const SceneCard: React.FC<SceneCardProps> = ({
 
   return (
     <div 
-      className="bg-slate-900/60 rounded-2xl p-5 shadow-xl flex flex-col gap-6"
+      className={`rounded-2xl p-5 shadow-xl flex flex-col gap-6 transition-all duration-200 border border-transparent ${
+        theme === 'dark' ? 'bg-[#1e2029] text-slate-200' : 'bg-white text-slate-800'
+      }`}
       data-id={scene.id}
     >
       {/* Top Header Card */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
+      <div className={`flex flex-wrap items-center justify-between gap-3 pb-3 border-b ${divider}`}>
         <div className="flex items-center gap-3">
-          <span className="bg-indigo-600/20 text-indigo-400 font-extrabold px-3 py-1 rounded-lg text-xs uppercase tracking-wider">
+          <span className="bg-indigo-600/20 text-indigo-500 font-extrabold px-3 py-1 rounded-lg text-xs uppercase tracking-wider">
             CENA {String(index + 1).padStart(2, '0')}
           </span>
           <select
             value={scene.template}
             onChange={(e) => onUpdateField('template', e.target.value)}
-            className="bg-slate-950 text-slate-300 text-xs rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer hover:bg-slate-900/50 transition-colors"
+            className={`text-xs rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer transition-colors border-transparent ${selectBg}`}
           >
             {templates.map(tmpl => {
               const label = tmpl.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -236,15 +254,15 @@ export const SceneCard: React.FC<SceneCardProps> = ({
         {/* Scene control buttons */}
         <div className="flex items-center gap-2">
           {/* Ordering buttons */}
-          <div className="flex items-center bg-slate-950 rounded-lg p-0.5">
+          <div className={`flex items-center rounded-lg p-0.5 ${containerBg}`}>
             <button
               type="button"
               onClick={onMoveUp}
               disabled={isFirst}
-              className={`p-1.5 rounded-md transition-colors ${
+              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 isFirst 
-                  ? 'text-slate-700 cursor-not-allowed' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? disabledColor 
+                  : itemHover
               }`}
               title="Mover para cima"
             >
@@ -254,10 +272,10 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               type="button"
               onClick={onMoveDown}
               disabled={isLast}
-              className={`p-1.5 rounded-md transition-colors ${
+              className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                 isLast 
-                  ? 'text-slate-700 cursor-not-allowed' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? disabledColor 
+                  : itemHover
               }`}
               title="Mover para baixo"
             >
@@ -265,7 +283,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             </button>
           </div>
 
-          <span className="text-xs font-mono text-slate-500 bg-slate-950 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+          <span className={`text-xs font-mono px-2.5 py-1 rounded-md flex items-center gap-1.5 ${badgeBg}`}>
             {isVertical ? <Smartphone className="w-3.5 h-3.5 text-indigo-400" /> : <Tv className="w-3.5 h-3.5 text-indigo-400" />}
             {scene.resolution === '1920x1080' ? '1080p • 16:9' : 
              scene.resolution === '1080x1920' ? '1080p • 9:16' : 
@@ -275,7 +293,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           <button
             type="button"
             onClick={onDelete}
-            className="p-1.5 rounded-lg text-red-500 hover:text-red-400 hover:bg-red-950/20 transition-colors"
+            className="p-1.5 rounded-lg text-red-500 hover:text-red-400 hover:bg-red-950/20 transition-colors cursor-pointer"
             title="Deletar cena"
           >
             <Trash2 className="w-4 h-4" />
@@ -302,21 +320,21 @@ export const SceneCard: React.FC<SceneCardProps> = ({
 
             {/* Narração */}
             <div className="md:col-span-3 flex flex-col">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+              <label className={`text-xs font-bold uppercase tracking-wider mb-1 ${labelColor}`}>
                 Texto de Narração / Prompt de Voz
               </label>
               <textarea
                 value={scene.narration}
                 onChange={(e) => handleNarrationChange(e.target.value)}
-                className="w-full flex-1 min-h-[110px] p-3 text-sm text-slate-200 bg-slate-955 rounded-xl focus:ring-1 focus:ring-indigo-500 focus:bg-slate-955/50 transition-all resize-none outline-none placeholder:text-slate-600"
+                className={`w-full flex-1 min-h-[110px] p-3 text-sm rounded-xl focus:ring-1 focus:ring-indigo-500 focus:bg-transparent transition-all resize-none outline-none border border-transparent ${inputBg}`}
                 placeholder="Digite a narração da cena aqui. O tempo de áudio será estimado automaticamente..."
               />
             </div>
           </div>
 
           {/* Collapsible Settings Block */}
-          <details className="group rounded-xl overflow-hidden bg-slate-955/40">
-            <summary className="flex items-center justify-between p-3 text-xs font-bold text-slate-400 bg-slate-950 cursor-pointer hover:bg-slate-900/60 select-none transition-colors">
+          <details className={`group rounded-xl overflow-hidden ${detailsBg} border ${borderBg}`}>
+            <summary className={`flex items-center justify-between p-3 text-xs font-bold cursor-pointer select-none transition-colors ${detailsHeader}`}>
               <span className="flex items-center gap-2 uppercase tracking-wider">
                 <Settings className="w-3.5 h-3.5 text-indigo-400" />
                 Configurações & Ajustes do Take
@@ -324,9 +342,9 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               <ChevronDown className="w-4 h-4 text-slate-500 transition-transform group-open:rotate-180" />
             </summary>
             
-            <div className="p-4 bg-slate-955/20 flex flex-col gap-4">
+            <div className={`p-4 flex flex-col gap-4 ${detailsBody}`}>
               {/* Timing Controls Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-900/50">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b ${divider}`}>
                 {/* Tempo de Áudio Estimado */}
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
@@ -336,13 +354,13 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                     <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
                       Áudio Estimado
                     </p>
-                    <p className="text-xs font-mono font-bold text-slate-300">
+                    <p className={`text-xs font-mono font-bold ${secondText}`}>
                       ~ {scene.audioDuration.toFixed(1)}s
                     </p>
                   </div>
                   {isTimingShort && (
                     <div 
-                      className="ml-auto bg-amber-955/40 text-amber-400 border border-amber-900/50 rounded-lg px-2 py-0.5 flex items-center gap-1 animate-pulse"
+                      className="ml-auto bg-amber-955/40 text-amber-450 border border-amber-900/50 rounded-lg px-2 py-0.5 flex items-center gap-1 animate-pulse"
                       title="O tempo de tela é menor do que o tempo de narração!"
                     >
                       <AlertTriangle className="w-3 h-3 text-amber-500" />
@@ -354,21 +372,21 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 {/* Forçar Manualmente a Duração */}
                 <div className="flex items-center justify-between sm:justify-end gap-3">
                   <div className="text-left sm:text-right">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    <label className={`text-[10px] font-bold uppercase tracking-wider block ${labelColor}`}>
                       Duração do Take
                     </label>
                     <span className="text-[9px] text-slate-500 block leading-tight">
                       Tempo de exibição
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-900 rounded-lg px-2.5 py-1 w-24 focus-within:ring-1 focus-within:ring-indigo-500 transition-shadow">
+                  <div className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 w-24 focus-within:ring-1 focus-within:ring-indigo-505 transition-shadow ${containerBg}`}>
                     <input
                       type="number"
                       step="0.1"
                       min="0.5"
                       value={scene.takeDuration}
                       onChange={(e) => onUpdateField('takeDuration', Math.max(0.5, parseFloat(e.target.value) || 0.5))}
-                      className="w-full text-xs font-mono font-bold bg-transparent text-slate-200 text-center outline-none"
+                      className={`w-full text-xs font-mono font-bold bg-transparent text-center outline-none ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}
                     />
                     <span className="text-[10px] font-bold text-slate-500">seg</span>
                   </div>
@@ -384,7 +402,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                       <Volume2 className="w-3.5 h-3.5 text-indigo-400" />
                       Volume da Música (BGM)
                     </span>
-                    <span className="font-mono text-slate-300 font-bold text-[10px]">{scene.bgVolume}%</span>
+                    <span className={`font-mono font-bold text-[10px] ${secondText}`}>{scene.bgVolume}%</span>
                   </div>
                   <input
                     type="range"
@@ -405,7 +423,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                   <select
                     value={scene.voiceLang || 'pt-BR-FranciscaNeural'}
                     onChange={(e) => onUpdateField('voiceLang', e.target.value)}
-                    className="w-full bg-slate-900 text-slate-300 rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                    className={`w-full rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer ${selectBg}`}
                   >
                     <option value="pt-BR-FranciscaNeural">Francisca (Mulher - Edge-TTS Online)</option>
                     <option value="pt-BR-AntonioNeural">Antonio (Homem - Edge-TTS Online)</option>
@@ -420,7 +438,9 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                     type="button"
                     onClick={handlePlayTTSPreview}
                     disabled={isAudioPreviewLoading || !scene.narration}
-                    className="mt-1.5 w-full py-1.5 px-3 rounded-lg text-[11px] font-semibold bg-slate-900 border border-slate-800 hover:border-indigo-500/30 text-indigo-400 hover:bg-slate-850 flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95"
+                    className={`mt-1.5 w-full py-1.5 px-3 rounded-lg text-[11px] font-semibold border hover:border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/5 flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 ${
+                      theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}
                   >
                     {isAudioPreviewLoading ? (
                       <>
@@ -436,7 +456,9 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                   </button>
 
                   {audioPreviewUrl && (
-                    <div className="mt-2 bg-slate-950/80 border border-slate-850 rounded-lg p-2 flex flex-col gap-1 animate-fadeIn">
+                    <div className={`mt-2 border rounded-lg p-2 flex flex-col gap-1 animate-fadeIn ${
+                      theme === 'dark' ? 'bg-slate-950 border-slate-850' : 'bg-[#f0f2f5] border-slate-205'
+                    }`}>
                       <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
                         <Volume2 className="w-3 h-3 text-indigo-400" />
                         Amostra do Áudio (TTS)
@@ -458,9 +480,9 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           <details 
             open={isGuideOpen} 
             onToggle={(e) => setIsGuideOpen(e.currentTarget.open)}
-            className="group rounded-xl overflow-hidden bg-slate-950/40"
+            className={`group rounded-xl overflow-hidden ${detailsBg} border ${borderBg}`}
           >
-            <summary className="flex items-center justify-between p-3 text-xs font-bold text-slate-400 bg-slate-950 cursor-pointer hover:bg-slate-900/60 select-none transition-colors">
+            <summary className={`flex items-center justify-between p-3 text-xs font-bold cursor-pointer select-none transition-colors ${detailsHeader}`}>
               <span className="flex items-center gap-2 uppercase tracking-wider">
                 <Info className="w-3.5 h-3.5 text-indigo-400" />
                 Sobre o Template & Diretrizes
@@ -468,24 +490,24 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               <ChevronDown className="w-4 h-4 text-slate-500 transition-transform group-open:rotate-180" />
             </summary>
             
-            <div className="p-4 bg-slate-955/20 flex flex-col gap-3 text-xs">
-              <div className="flex items-center gap-2 font-bold text-slate-200">
-                <span className="bg-indigo-600/10 text-indigo-400 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded">
+            <div className={`p-4 flex flex-col gap-3 text-xs ${detailsBody}`}>
+              <div className="flex items-center gap-2 font-bold">
+                <span className="bg-indigo-650/10 text-indigo-400 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded">
                   {guide.title}
                 </span>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-[10px] text-slate-400">
+              <div className={`grid grid-cols-2 gap-3 text-[10px] ${subtextColor}`}>
                 <div>
-                  <span className="font-extrabold text-slate-500 uppercase tracking-wider block mb-0.5">Tipos Permitidos</span>
-                  <span className="font-semibold text-slate-300">{guide.allowed}</span>
+                  <span className="font-extrabold text-slate-550 uppercase tracking-wider block mb-0.5">Tipos Permitidos</span>
+                  <span className={`font-semibold ${secondText}`}>{guide.allowed}</span>
                 </div>
                 <div>
-                  <span className="font-extrabold text-slate-500 uppercase tracking-wider block mb-0.5">Quantidade de Mídias</span>
-                  <span className="font-semibold text-slate-300">{guide.limit}</span>
+                  <span className="font-extrabold text-slate-550 uppercase tracking-wider block mb-0.5">Quantidade de Mídias</span>
+                  <span className={`font-semibold ${secondText}`}>{guide.limit}</span>
                 </div>
               </div>
-              <div className="text-[10px] text-slate-400 leading-relaxed pt-2">
-                <span className="text-indigo-400 font-bold uppercase tracking-wider block mb-0.5">Instruções de Troca</span>
+              <div className={`text-[10px] leading-relaxed pt-2 ${secondText}`}>
+                <span className="text-indigo-455 font-bold uppercase tracking-wider block mb-0.5">Instruções de Troca</span>
                 {guide.instructions}
               </div>
             </div>
@@ -498,13 +520,13 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Preview do Layout
             </h4>
-            <span className="text-[9px] text-slate-600 font-mono">
+            <span className="text-[9px] text-slate-550 font-mono">
               WYSIWYG Simulação
             </span>
           </div>
 
           {/* Simulator Canvas Wrapper */}
-          <div className="w-full flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 shadow-inner min-h-[350px]">
+          <div className={`w-full flex items-center justify-center rounded-2xl p-4 shadow-inner min-h-[350px] ${containerBg}`}>
             {isVertical ? (
               /* SMARTPHONE FRAME (9:16 Aspect Ratio Mockup) - Responsive max-width */
               <div className="aspect-[9/16] w-full max-w-[210px] sm:max-w-[240px] md:max-w-[260px] lg:max-w-full xl:max-w-[280px] rounded-[2rem] border-8 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300">
@@ -750,7 +772,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             )}
           </div>
 
-          <div className="text-[10px] text-slate-500 bg-slate-950/30 p-2 rounded-lg text-center leading-relaxed w-full">
+          <div className={`text-[10px] text-slate-505 p-2 rounded-lg text-center leading-relaxed w-full ${containerBg}`}>
             Mídias e legendas serão renderizadas fisicamente no arquivo final nas posições e estilos configurados.
           </div>
         </div>

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Outfit', sans-serif;
+}
+
 /* Subtle custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
