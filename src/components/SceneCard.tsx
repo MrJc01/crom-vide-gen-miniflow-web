@@ -266,108 +266,112 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             </div>
           </div>
 
-          {/* Ajustes de Tempos */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-            {/* Tempo de Áudio Estimado */}
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
-                <Mic className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                  Áudio Estimado
-                </p>
-                <p className="text-sm font-mono font-bold text-slate-300 mt-0.5">
-                  ~ {scene.audioDuration.toFixed(1)}s
-                </p>
-              </div>
-              {isTimingShort && (
-                <div 
-                  className="ml-auto bg-amber-950/40 text-amber-400 border border-amber-900/50 rounded-lg px-2 py-1 flex items-center gap-1 animate-pulse"
-                  title="O tempo de tela é menor do que o tempo de narração!"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="text-[9px] font-bold">Curto demais</span>
-                </div>
-              )}
-            </div>
-
-            {/* Forçar Manualmente a Duração */}
-            <div className="flex items-center justify-between sm:justify-end gap-3">
-              <div className="text-left sm:text-right">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                  Duração do Take
-                </label>
-                <span className="text-[10px] text-slate-500 block">
-                  Tempo de exibição da cena
-                </span>
-              </div>
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 w-28 focus-within:ring-1 focus-within:ring-indigo-500 transition-shadow">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  value={scene.takeDuration}
-                  onChange={(e) => onUpdateField('takeDuration', Math.max(0.5, parseFloat(e.target.value) || 0.5))}
-                  className="w-full text-sm font-mono font-bold bg-transparent text-slate-200 text-center outline-none"
-                />
-                <span className="text-xs font-bold text-slate-500">seg</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Configurações Avançadas (Accordion Nativo) */}
-          <details className="group border border-slate-800/80 rounded-xl overflow-hidden bg-slate-950/20">
-            <summary className="flex items-center justify-between p-3 text-xs font-medium text-slate-400 bg-slate-950 cursor-pointer hover:bg-slate-900/80 select-none transition-colors">
-              <span className="flex items-center gap-2 font-bold text-slate-400 uppercase tracking-wider">
+          {/* Collapsible Settings Block */}
+          <details className="group border border-slate-850 rounded-xl overflow-hidden bg-slate-950/40">
+            <summary className="flex items-center justify-between p-3 text-xs font-bold text-slate-400 bg-slate-950 cursor-pointer hover:bg-slate-900/60 select-none transition-colors">
+              <span className="flex items-center gap-2 uppercase tracking-wider">
                 <Settings className="w-3.5 h-3.5 text-indigo-400" />
-                Configurações Avançadas da Cena
+                Configurações & Ajustes do Take
               </span>
               <ChevronDown className="w-4 h-4 text-slate-500 transition-transform group-open:rotate-180" />
             </summary>
-            <div className="p-4 border-t border-slate-800 bg-slate-950/40 flex flex-col sm:flex-row gap-6 text-xs">
-              {/* Mixagem de Música de Fundo */}
-              <div className="flex-1 flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold uppercase tracking-wider text-slate-500 text-[10px] flex items-center gap-1">
-                    <Volume2 className="w-3 h-3 text-indigo-400" />
-                    Volume da Trilha de Fundo (BGM)
-                  </span>
-                  <span className="font-mono text-slate-300 font-bold">{scene.bgVolume}%</span>
+            
+            <div className="p-4 border-t border-slate-850 bg-slate-950/20 flex flex-col gap-4">
+              {/* Timing Controls Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-850/80">
+                {/* Tempo de Áudio Estimado */}
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+                    <Mic className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
+                      Áudio Estimado
+                    </p>
+                    <p className="text-xs font-mono font-bold text-slate-300">
+                      ~ {scene.audioDuration.toFixed(1)}s
+                    </p>
+                  </div>
+                  {isTimingShort && (
+                    <div 
+                      className="ml-auto bg-amber-950/40 text-amber-400 border border-amber-900/50 rounded-lg px-2 py-0.5 flex items-center gap-1 animate-pulse"
+                      title="O tempo de tela é menor do que o tempo de narração!"
+                    >
+                      <AlertTriangle className="w-3 h-3 text-amber-500" />
+                      <span className="text-[8px] font-bold">Curto demais</span>
+                    </div>
+                  )}
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={scene.bgVolume}
-                  onChange={(e) => onUpdateField('bgVolume', parseInt(e.target.value))}
-                  className="w-full accent-indigo-500 bg-slate-800 h-1 rounded-lg cursor-pointer transition-colors"
-                />
+
+                {/* Forçar Manualmente a Duração */}
+                <div className="flex items-center justify-between sm:justify-end gap-3">
+                  <div className="text-left sm:text-right">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                      Duração do Take
+                    </label>
+                    <span className="text-[9px] text-slate-500 block leading-tight">
+                      Tempo de exibição
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 w-24 focus-within:ring-1 focus-within:ring-indigo-500 transition-shadow">
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0.5"
+                      value={scene.takeDuration}
+                      onChange={(e) => onUpdateField('takeDuration', Math.max(0.5, parseFloat(e.target.value) || 0.5))}
+                      className="w-full text-xs font-mono font-bold bg-transparent text-slate-200 text-center outline-none"
+                    />
+                    <span className="text-[10px] font-bold text-slate-500">seg</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Escolha das Legendas */}
-              <div className="w-full sm:w-1/3 flex flex-col gap-1.5">
-                <span className="font-bold uppercase tracking-wider text-slate-500 text-[10px] flex items-center gap-1">
-                  <Type className="w-3 h-3 text-indigo-400" />
-                  Estilo da Legenda
-                </span>
-                <select
-                  value={scene.subtitleStyle}
-                  onChange={(e) => onUpdateField('subtitleStyle', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 text-slate-300 rounded-md p-1.5 outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
-                >
-                  <option value="yellow">Destaque Amarelo</option>
-                  <option value="minimalist">Branco Minimalista</option>
-                  <option value="none">Sem Legendas</option>
-                </select>
+              {/* Sound & Subtitle Styles Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                {/* Mixagem de Música de Fundo */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold uppercase tracking-wider text-slate-500 text-[9px] flex items-center gap-1">
+                      <Volume2 className="w-3.5 h-3.5 text-indigo-400" />
+                      Volume da Música (BGM)
+                    </span>
+                    <span className="font-mono text-slate-300 font-bold text-[10px]">{scene.bgVolume}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={scene.bgVolume}
+                    onChange={(e) => onUpdateField('bgVolume', parseInt(e.target.value))}
+                    className="w-full accent-indigo-500 bg-slate-800 h-1 rounded-lg cursor-pointer"
+                  />
+                </div>
+
+                {/* Escolha das Legendas */}
+                <div className="flex flex-col gap-1">
+                  <span className="font-bold uppercase tracking-wider text-slate-500 text-[9px] flex items-center gap-1">
+                    <Type className="w-3.5 h-3.5 text-indigo-400" />
+                    Estilo da Legenda
+                  </span>
+                  <select
+                    value={scene.subtitleStyle}
+                    onChange={(e) => onUpdateField('subtitleStyle', e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 text-slate-300 rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                  >
+                    <option value="yellow">Destaque Amarelo</option>
+                    <option value="minimalist">Branco Minimalista</option>
+                    <option value="none">Sem Legendas</option>
+                  </select>
+                </div>
               </div>
             </div>
           </details>
         </div>
 
         {/* RIGHT COLUMN: LIVE CANVAS PREVIEW (4 COLS) */}
-        <div className="lg:col-span-4 flex flex-col gap-3.5 border-t lg:border-t-0 lg:border-l border-slate-800 pt-5 lg:pt-0 lg:pl-6">
-          <div className="flex items-center justify-between">
+        <div className="lg:col-span-4 flex flex-col gap-3.5 border-t lg:border-t-0 lg:border-l border-slate-800 pt-5 lg:pt-0 lg:pl-6 w-full">
+          <div className="flex items-center justify-between w-full">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Preview do Layout
             </h4>
@@ -377,10 +381,10 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           </div>
 
           {/* Simulator Canvas Wrapper */}
-          <div className="w-full flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-800/50 shadow-inner min-h-[300px]">
+          <div className="w-full flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-800/50 shadow-inner min-h-[350px]">
             {isVertical ? (
-              /* SMARTPHONE FRAME (9:16 Aspect Ratio Mockup) */
-              <div className="aspect-[9/16] w-full max-w-[210px] rounded-[2rem] border-8 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between">
+              /* SMARTPHONE FRAME (9:16 Aspect Ratio Mockup) - Responsive max-width */
+              <div className="aspect-[9/16] w-full max-w-[210px] sm:max-w-[240px] md:max-w-[260px] lg:max-w-full xl:max-w-[280px] rounded-[2rem] border-8 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300">
                 {/* Simulated Notch / iPhone Island */}
                 <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 bg-slate-950 rounded-full z-30" />
                 
@@ -398,6 +402,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                     <img 
                       src={backgroundSrc} 
                       alt="Preview Fundo" 
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       className="absolute inset-0 w-full h-full object-cover z-0" 
                     />
                   )
@@ -475,8 +480,8 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 )}
               </div>
             ) : (
-              /* TV/MONITOR FRAME (16:9 Aspect Ratio Mockup) */
-              <div className="aspect-[16/9] w-full max-w-[310px] rounded-xl border-4 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between">
+              /* TV/MONITOR FRAME (16:9 Aspect Ratio Mockup) - Responsive max-width */
+              <div className="aspect-[16/9] w-full max-w-[310px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-full xl:max-w-[420px] rounded-xl border-4 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300">
                 
                 {/* Background rendering inside TV */}
                 {backgroundSrc ? (
@@ -492,6 +497,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                     <img 
                       src={backgroundSrc} 
                       alt="Preview Fundo" 
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       className="absolute inset-0 w-full h-full object-cover z-0" 
                     />
                   )
@@ -533,7 +539,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             )}
           </div>
 
-          <div className="text-[10px] text-slate-500 bg-slate-950/30 p-2 rounded-lg border border-slate-800/40 text-center leading-relaxed">
+          <div className="text-[10px] text-slate-500 bg-slate-950/30 p-2 rounded-lg border border-slate-800/40 text-center leading-relaxed w-full">
             Mídias e legendas serão renderizadas fisicamente no arquivo final nas posições e estilos configurados.
           </div>
         </div>

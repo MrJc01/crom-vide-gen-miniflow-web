@@ -28,8 +28,8 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
     await expect(cardCenaDois).toBeVisible();
 
     // Delete the scene 02 card
-    // Select the second scene card (index 1) and click its delete button
-    const cardContainer = page.locator('[data-id]').nth(1);
+    // Select the active card container and click its delete button
+    const cardContainer = page.locator('[data-id]').first();
     const deleteButton = cardContainer.locator('button[title="Deletar cena"]');
     await deleteButton.click();
 
@@ -55,9 +55,12 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
     await expect(card.locator('text=Exatamente 1 mídia de fundo')).toBeVisible();
   });
 
-  test('deve estimar o tempo de áudio da narração em tempo real', async ({ page }) => {
+    test('deve estimar o tempo de áudio da narração em tempo real', async ({ page }) => {
     const card = page.locator('[data-id]').first();
     const textarea = card.locator('textarea');
+    
+    // Open collapsible settings to make audio duration visible
+    await card.locator('summary:has-text("Configurações & Ajustes do Take")').click();
     
     // Initially estimated audio should be ~4.8s due to default text
     await expect(card.locator('text=~ 4.8s')).toBeVisible();
@@ -73,6 +76,10 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
   test('deve auto-ajustar a duração do take se for menor que o tempo de áudio', async ({ page }) => {
     const card = page.locator('[data-id]').first();
     const textarea = card.locator('textarea');
+    
+    // Open collapsible settings to make duration input visible
+    await card.locator('summary:has-text("Configurações & Ajustes do Take")').click();
+    
     const durationInput = card.locator('input[type="number"]');
 
     // Set take duration manually to a low value (e.g. 1 second)

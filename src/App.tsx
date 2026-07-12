@@ -60,6 +60,43 @@ export default function App() {
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
+  // Active scene state
+  const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
+
+  // Select first scene as active if none is active
+  useEffect(() => {
+    if (scenes.length > 0) {
+      if (!activeSceneId || !scenes.some(s => s.id === activeSceneId)) {
+        setActiveSceneId(scenes[0].id);
+      }
+    } else {
+      setActiveSceneId(null);
+    }
+  }, [scenes, activeSceneId]);
+
+  const activeScene = scenes.find(s => s.id === activeSceneId) || null;
+
+  // Helper to map uploads to absolute backend URLs
+  const getFullUrl = (path: string) => {
+    if (path.startsWith('blob:') || path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    const cleanPath = path.replace(/^tmp\/uploads\//, '');
+    return `${apiUrl}/uploads/${cleanPath}`;
+  };
+
+  // Helper to detect video format
+  const isVideo = (path: string) => {
+    const lower = path.toLowerCase();
+    return (
+      lower.endsWith('.mp4') ||
+      lower.endsWith('.webm') ||
+      lower.endsWith('.ogg') ||
+      lower.endsWith('.mov') ||
+      lower.includes('video')
+    );
+  };
+
   // Check connection to videogen-server
   const checkConnection = async (urlToCheck: string) => {
     try {
@@ -132,8 +169,9 @@ export default function App() {
 
   // Add scene
   const addScene = () => {
+    const newId = 'scene_' + Math.random().toString(36).substring(2, 9);
     const newScene: Scene = {
-      id: 'scene_' + Math.random().toString(36).substring(2, 9),
+      id: newId,
       template: '1',
       resolution: globalResolution,
       mediaFiles: [],
@@ -144,12 +182,21 @@ export default function App() {
       subtitleStyle: 'yellow',
     };
     setScenes(prev => [...prev, newScene]);
+    setActiveSceneId(newId);
     showNotification('info', 'Nova cena adicionada à timeline.');
   };
 
   // Delete scene
   const deleteScene = (id: string) => {
-    setScenes(prev => prev.filter(s => s.id !== id));
+    const remaining = scenes.filter(s => s.id !== id);
+    setScenes(remaining);
+    if (activeSceneId === id) {
+      if (remaining.length > 0) {
+        setActiveSceneId(remaining[0].id);
+      } else {
+        setActiveSceneId(null);
+      }
+    }
     showNotification('info', 'Cena removida.');
   };
 
@@ -499,26 +546,28 @@ export default function App() {
         {/* Studio Workspace Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
-          {/* Left / Center: Storyboard Timeline */}
+          {/* Left / Center: Active Editor and Timeline */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="flex items-center justify-between bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                Timeline do Storyboard ({scenes.length} cena(s))
-              </span>
-              <button 
-                onClick={addScene}
-                className="px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-950/40 flex items-center gap-1.5 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Nova Cena
-              </button>
-            </div>
-
-            {/* Scenes rendering */}
-            {scenes.length === 0 ? (
+            {/* Active Scene Editor Panel */}
+            {activeScene ? (
+              <SceneCard
+                key={activeScene.id}
+                scene={activeScene}
+                index={scenes.findIndex(s => s.id === activeScene.id)}
+                apiUrl={apiUrl}
+                isFirst={scenes.findIndex(s => s.id === activeScene.id) === 0}
+                isLast={scenes.findIndex(s => s.id === activeScene.id) === scenes.length - 1}
+                onUpdateField={(field, value) => updateSceneField(activeScene.id, field, value)}
+                onDelete={() => deleteScene(activeScene.id)}
+                onAddMedia={(files) => handleMediaUpload(activeScene.id, files)}
+                onRemoveMedia={(mIdx) => removeMedia(activeScene.id, mIdx)}
+                onMoveUp={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'up')}
+                onMoveDown={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'down')}
+              />
+            ) : (
               <div className="text-center py-20 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 flex flex-col items-center gap-2">
                 <Film className="w-8 h-8 text-slate-700" />
-                <p className="text-sm">Nenhuma cena na fila de montagem.</p>
+                <p className="text-sm">Nenhuma cena na timeline.</p>
                 <button 
                   onClick={addScene}
                   className="mt-2 text-indigo-400 hover:text-indigo-300 font-bold text-xs"
@@ -526,24 +575,74 @@ export default function App() {
                   Adicionar primeira cena
                 </button>
               </div>
-            ) : (
-              <div className="flex flex-col gap-6">
-                {scenes.map((scene, index) => (
-                  <SceneCard
-                    key={scene.id}
-                    scene={scene}
-                    index={index}
-                    apiUrl={apiUrl}
-                    isFirst={index === 0}
-                    isLast={index === scenes.length - 1}
-                    onUpdateField={(field, value) => updateSceneField(scene.id, field, value)}
-                    onDelete={() => deleteScene(scene.id)}
-                    onAddMedia={(files) => handleMediaUpload(scene.id, files)}
-                    onRemoveMedia={(mIdx) => removeMedia(scene.id, mIdx)}
-                    onMoveUp={() => moveScene(index, 'up')}
-                    onMoveDown={() => moveScene(index, 'down')}
-                  />
-                ))}
+            )}
+
+            {/* Horizontal Filmstrip Timeline */}
+            {scenes.length > 0 && (
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-850 pb-2.5">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                    Timeline do Storyboard ({scenes.length} cena(s))
+                  </span>
+                  <button 
+                    onClick={addScene}
+                    className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-950/40 flex items-center gap-1 transition-all active:scale-95"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Nova Cena
+                  </button>
+                </div>
+                
+                <div className="flex gap-4 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                  {scenes.map((scene, index) => {
+                    const isActive = scene.id === activeSceneId;
+                    const hasMedia = scene.mediaFiles.length > 0;
+                    const mediaUrl = hasMedia ? getFullUrl(scene.mediaFiles[0]) : '';
+                    const isVid = hasMedia && isVideo(scene.mediaFiles[0]);
+                    
+                    return (
+                      <div
+                        key={scene.id}
+                        onClick={() => setActiveSceneId(scene.id)}
+                        className={`flex-shrink-0 w-44 bg-slate-950 border-2 rounded-xl p-2.5 cursor-pointer transition-all flex flex-col gap-2 relative select-none hover:border-slate-700 ${
+                          isActive ? 'border-indigo-600 shadow-md shadow-indigo-950/50' : 'border-slate-850'
+                        }`}
+                      >
+                        {/* Thumbnail frame indicator */}
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-850 flex items-center justify-center">
+                          {hasMedia ? (
+                            isVid ? (
+                              <video src={mediaUrl} className="w-full h-full object-cover pointer-events-none" muted />
+                            ) : (
+                              <img src={mediaUrl} alt="" className="w-full h-full object-cover pointer-events-none" />
+                            )
+                          ) : (
+                            <div className="flex flex-col items-center justify-center text-slate-700 p-2">
+                              <Film className="w-5 h-5 mb-0.5" />
+                              <span className="text-[8px] font-bold uppercase tracking-wider">Vazio</span>
+                            </div>
+                          )}
+                          <span className="absolute top-1 left-1 bg-slate-950/95 text-slate-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded border border-slate-850">
+                            #{String(index + 1).padStart(2, '0')}
+                          </span>
+                          <span className="absolute bottom-1 right-1 bg-slate-950/95 text-slate-300 text-[8px] font-mono px-1 py-0.5 rounded border border-slate-850">
+                            {scene.takeDuration.toFixed(1)}s
+                          </span>
+                        </div>
+                        
+                        {/* Scene text/info */}
+                        <div className="flex flex-col gap-0.5 text-left">
+                          <span className="text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 truncate">
+                            {scene.template === '1' ? 'Reels Dinâmico' : scene.template === '2' ? 'Documentário' : 'Stories Vendas'}
+                          </span>
+                          <p className="text-[10px] text-slate-400 font-medium truncate h-3.5">
+                            {scene.narration || <span className="text-slate-600 italic">Sem narração</span>}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
