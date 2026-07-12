@@ -366,14 +366,15 @@ export default function App() {
           
           const getSlotsForTemplate = (tmpl: string) => {
             if (tmpl === 'multiscreen') {
+              const colW = Math.round(width / 3);
               return [
-                { x: 180, y: 960, w: 360, h: 1920 },
-                { x: 540, y: 960, w: 360, h: 1920 },
-                { x: 900, y: 960, w: 360, h: 1920 }
+                { x: Math.round(colW * 0.5), y: Math.round(height * 0.5), w: colW, h: height },
+                { x: Math.round(colW * 1.5), y: Math.round(height * 0.5), w: colW, h: height },
+                { x: Math.round(colW * 2.5), y: Math.round(height * 0.5), w: colW, h: height }
               ];
             }
             return [
-              { x: width / 2, y: height / 2, w: width, h: height }
+              { x: Math.round(width / 2), y: Math.round(height / 2), w: width, h: height }
             ];
           };
 

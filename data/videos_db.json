@@ -2670,5 +2670,159 @@
       "jpeg_quality": 2,
       "subtitles": true
     }
+  },
+  "job_1783892061781": {
+    "id": "job_1783892061781",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783892061781.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T18:34:21.782404107-03:00",
+    "updated_at": "2026-07-12T18:37:17.772630661-03:00",
+    "render_duration_ms": 174491,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1920,
+        "height": 1080
+      },
+      "fps": 24,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 960,
+              "y": 540,
+              "width": 1920,
+              "height": 1080
+            }
+          ],
+          "narration": "A jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 10000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview (1).png",
+              "x": 180,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/logo-primary.png",
+              "x": 540,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design sem nome.png",
+              "x": 900,
+              "y": 960,
+              "width": 360,
+              "height": 1920
+            }
+          ],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
+  },
+  "job_1783893228056": {
+    "id": "job_1783893228056",
+    "template_id": "meu_video_projeto",
+    "status": "done",
+    "file_path": "outputs/output_meu_video_projeto_job_1783893228056.mp4",
+    "category": "Uncategorized",
+    "archived": false,
+    "created_at": "2026-07-12T18:53:48.057114966-03:00",
+    "updated_at": "2026-07-12T18:55:16.164253244-03:00",
+    "render_duration_ms": 86671,
+    "template": {
+      "template_id": "meu_video_projeto",
+      "resolution": {
+        "width": 1920,
+        "height": 1080
+      },
+      "fps": 30,
+      "cards": [
+        {
+          "id": "cena_01",
+          "duration_ms": 5000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview.png",
+              "x": 960,
+              "y": 540,
+              "width": 1920,
+              "height": 1080
+            }
+          ],
+          "narration": "A jornada começa agora. Explore os cenários mais incríveis do mundo com cortes dinâmicos.",
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        },
+        {
+          "id": "cena_02",
+          "duration_ms": 3000,
+          "background_color": "#0F172A",
+          "elements": [
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design_sem_nome__1_-removebg-preview (1).png",
+              "x": 320,
+              "y": 540,
+              "width": 640,
+              "height": 1080
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/logo-primary.png",
+              "x": 960,
+              "y": 540,
+              "width": 640,
+              "height": 1080
+            },
+            {
+              "type": "image",
+              "content": "tmp/uploads/Design sem nome.png",
+              "x": 1600,
+              "y": 540,
+              "width": 640,
+              "height": 1080
+            }
+          ],
+          "voice": {
+            "lang": "pt-BR-FranciscaNeural"
+          }
+        }
+      ],
+      "hwaccel": false,
+      "jpeg_quality": 2,
+      "subtitles": true
+    }
   }
 }
