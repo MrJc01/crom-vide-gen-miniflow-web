@@ -10,6 +10,8 @@ import {
   Settings, 
   Volume2, 
   AlertTriangle,
+  Play,
+  Loader2,
   Smartphone,
   Tv,
   Info,
@@ -114,6 +116,44 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   templates = ['10_best', 'breaking_news', 'multiscreen', 'teste', 'trendy_stories']
 }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isAudioPreviewLoading, setIsAudioPreviewLoading] = useState(false);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+
+  // Clear stale audio preview url if narration or voice selection changes
+  useEffect(() => {
+    setAudioPreviewUrl(null);
+  }, [scene.narration, scene.voiceLang]);
+
+  const handlePlayTTSPreview = async () => {
+    if (!scene.narration || scene.narration.trim() === '') {
+      alert('Por favor, digite um roteiro de narração para ouvir a prévia!');
+      return;
+    }
+
+    setIsAudioPreviewLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/api/tts-preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: scene.narration,
+          voice: scene.voiceLang || 'pt-BR-FranciscaNeural'
+        })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setAudioPreviewUrl(url);
+      } else {
+        alert('Falha ao gerar prévia de áudio.');
+      }
+    } catch (err) {
+      alert('Erro ao se conectar com o servidor para gerar prévia de áudio.');
+    } finally {
+      setIsAudioPreviewLoading(false);
+    }
+  };
 
   useEffect(() => {
     setIsGuideOpen(true);
@@ -374,6 +414,39 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                     <option value="es-ES-AlvaroNeural">Alvaro (Espanhol Masculino - Edge-TTS Online)</option>
                     <option value="es-ES-ElviraNeural">Elvira (Espanhol Feminino - Edge-TTS Online)</option>
                   </select>
+                  <button
+                    type="button"
+                    onClick={handlePlayTTSPreview}
+                    disabled={isAudioPreviewLoading || !scene.narration}
+                    className="mt-1.5 w-full py-1.5 px-3 rounded-lg text-[11px] font-semibold bg-slate-900 border border-slate-800 hover:border-indigo-500/30 text-indigo-400 hover:bg-slate-850 flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95"
+                  >
+                    {isAudioPreviewLoading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Gerando Amostra...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3.5 h-3.5 fill-indigo-400 font-bold" />
+                        {audioPreviewUrl ? 'Regerar Amostra de Voz' : 'Gerar Amostra de Voz'}
+                      </>
+                    )}
+                  </button>
+
+                  {audioPreviewUrl && (
+                    <div className="mt-2 bg-slate-950/80 border border-slate-850 rounded-lg p-2 flex flex-col gap-1 animate-fadeIn">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                        <Volume2 className="w-3 h-3 text-indigo-400" />
+                        Amostra do Áudio (TTS)
+                      </span>
+                      <audio 
+                        src={audioPreviewUrl} 
+                        controls 
+                        className="w-full h-8 accent-indigo-500 rounded-md"
+                        autoPlay
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

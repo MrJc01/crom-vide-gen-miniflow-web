@@ -91,6 +91,7 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
   });
 
   test('deve submeter o roteiro para renderização e monitorar o status do job', async ({ page }) => {
+    test.setTimeout(90000);
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 

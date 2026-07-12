@@ -453,6 +453,16 @@ export default function App() {
     }
   };
 
+  // Auto-trigger frame preview when media files of the active scene change
+  useEffect(() => {
+    if (activeScene && activeScene.mediaFiles && activeScene.mediaFiles.length > 0 && serverConnected) {
+      const timer = setTimeout(() => {
+        triggerPreview();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [activeScene?.mediaFiles?.join(','), activeScene?.template, activeScene?.id]);
+
   const deleteJob = async (id: string) => {
     if (!serverConnected) return;
     try {
