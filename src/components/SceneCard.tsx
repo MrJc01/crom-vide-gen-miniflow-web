@@ -34,6 +34,7 @@ interface SceneCardProps {
   isFirst: boolean;
   isLast: boolean;
   templates?: string[];
+  subtitlesEnabled?: boolean;
 }
 
 interface TemplateGuide {
@@ -113,7 +114,8 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   onMoveDown,
   isFirst,
   isLast,
-  templates = ['10_best', 'breaking_news', 'multiscreen', 'teste', 'trendy_stories']
+  templates = ['10_best', 'breaking_news', 'multiscreen', 'teste', 'trendy_stories'],
+  subtitlesEnabled = true
 }) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isAudioPreviewLoading, setIsAudioPreviewLoading] = useState(false);
@@ -634,7 +636,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 )}
 
                 {/* Subtitle Narration inside Phone */}
-                {scene.narration.trim() && (
+                {subtitlesEnabled && scene.narration.trim() && (
                   <div className={`absolute left-1/2 -translate-x-1/2 w-[90%] z-20 text-center ${
                     scene.template === '1' ? 'bottom-[35%]' : 'bottom-[20%]'
                   }`}>
@@ -737,7 +739,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 )}
 
                 {/* Subtitle Narration inside TV */}
-                {scene.narration.trim() && (
+                {subtitlesEnabled && scene.narration.trim() && (
                   <div className="absolute bottom-[13%] left-1/2 -translate-x-1/2 w-[85%] z-20 text-center">
                     <span className="text-white font-semibold text-[9px] drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.95)] inline-block leading-tight px-1">
                       {scene.narration}

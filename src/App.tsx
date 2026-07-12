@@ -42,6 +42,7 @@ export default function App() {
   const [globalFps, setGlobalFps] = useState(30);
   const [globalBgmUrl, setGlobalBgmUrl] = useState('');
   const [hwAccel, setHwAccel] = useState(false);
+  const [globalSubtitles, setGlobalSubtitles] = useState(true);
   const [jpegQuality, setJpegQuality] = useState(2);
 
   // App settings & connection
@@ -306,6 +307,7 @@ export default function App() {
         audio_url: globalBgmUrl || undefined,
         hwaccel: hwAccel,
         jpeg_quality: jpegQuality,
+        subtitles: globalSubtitles,
         cards: scenes.map((scene, i) => {
           // Construct visual elements based on slots
           const elements: any[] = [];
@@ -591,6 +593,7 @@ export default function App() {
               onMoveUp={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'up')}
               onMoveDown={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'down')}
               templates={availableTemplates}
+              subtitlesEnabled={globalSubtitles}
             />
           ) : (
             <div className="text-center py-20 bg-slate-900/40 rounded-2xl text-slate-500 flex flex-col items-center gap-2 shadow-inner">
@@ -804,6 +807,20 @@ export default function App() {
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-slate-200">Aceleração por GPU</span>
                   <span className="text-[9px] text-slate-500">Usa NVENC (fallback automático p/ CPU)</span>
+                </div>
+              </label>
+
+              {/* Habilitar Legendas do Vídeo */}
+              <label className="flex items-center gap-2 mt-1 cursor-pointer select-none bg-slate-900 border border-slate-850 px-3 py-2.5 rounded-xl hover:bg-slate-850 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={globalSubtitles}
+                  onChange={(e) => setGlobalSubtitles(e.target.checked)}
+                  className="w-4 h-4 accent-indigo-650 rounded cursor-pointer"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-200">Habilitar Legendas</span>
+                  <span className="text-[9px] text-slate-500">Desenha legendas sincronizadas no rodapé</span>
                 </div>
               </label>
             </div>

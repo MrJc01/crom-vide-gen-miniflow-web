@@ -45,6 +45,7 @@ export interface VideoTemplate {
   audio_url?: string;
   hwaccel?: boolean;
   jpeg_quality?: number;
+  subtitles?: boolean;
   cards: Card[];
 }
 
