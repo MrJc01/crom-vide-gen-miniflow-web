@@ -10,9 +10,8 @@ import {
   Copy, 
   Wifi, 
   WifiOff, 
-  Settings, 
-  Sparkles, 
-  Info,
+  Settings,
+  Sparkles,
   Maximize2,
   Loader2
 } from 'lucide-react';
@@ -24,7 +23,7 @@ export default function App() {
   const [scenes, setScenes] = useState<Scene[]>([
     {
       id: 'scene_' + Math.random().toString(36).substring(2, 9),
-      template: '1',
+      template: '10_best',
       resolution: '1080x1920', // Default: Vertical Full HD
       mediaFiles: [
         'https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=300&q=80'
@@ -58,10 +57,12 @@ export default function App() {
   const [isRefreshingJobs, setIsRefreshingJobs] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [availableTemplates, setAvailableTemplates] = useState<string[]>(['10_best', 'breaking_news', 'multiscreen', 'teste', 'trendy_stories']);
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   // Active scene state
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Select first scene as active if none is active
   useEffect(() => {
@@ -103,6 +104,10 @@ export default function App() {
       // Try fetching templates api to verify server presence
       const res = await fetch(`${urlToCheck}/api/templates`, { mode: 'cors' });
       if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAvailableTemplates(data);
+        }
         setServerConnected(true);
         showNotification('success', 'Conectado ao videogen-server com sucesso!');
       } else {
@@ -172,7 +177,7 @@ export default function App() {
     const newId = 'scene_' + Math.random().toString(36).substring(2, 9);
     const newScene: Scene = {
       id: newId,
-      template: '1',
+      template: availableTemplates[0] || '10_best',
       resolution: globalResolution,
       mediaFiles: [],
       narration: '',
@@ -223,57 +228,45 @@ export default function App() {
     setScenes(newScenes);
   };
 
-  // Handle media file upload
-  const handleMediaUpload = async (sceneId: string, fileList: FileList) => {
+  // Handle media file upload for specific slot
+  const handleMediaUploadForSlot = async (sceneId: string, slotIdx: number, fileList: FileList) => {
     const scene = scenes.find(s => s.id === sceneId);
-    if (!scene) return;
+    if (!scene || fileList.length === 0) return;
 
+    const file = fileList[0];
     const newMediaFiles = [...scene.mediaFiles];
 
-    for (let i = 0; i < fileList.length; i++) {
-      const file = fileList[i];
-      
-      if (serverConnected) {
-        // Connected to server: Upload real file
-        const formData = new FormData();
-        formData.append('file', file);
+    if (serverConnected) {
+      // Connected to server: Upload real file
+      const formData = new FormData();
+      formData.append('file', file);
 
-        try {
-          showNotification('info', `Enviando arquivo: ${file.name}...`);
-          const res = await fetch(`${apiUrl}/api/upload`, {
-            method: 'POST',
-            body: formData,
-          });
-          
-          if (res.ok) {
-            const data = await res.json();
-            // data.path will be "tmp/uploads/filename"
-            newMediaFiles.push(data.path);
-            showNotification('success', `Arquivo ${file.name} enviado.`);
-          } else {
-            showNotification('error', `Falha ao enviar arquivo ${file.name}.`);
-          }
-        } catch (e) {
-          showNotification('error', `Erro na conexão durante o upload de ${file.name}.`);
+      try {
+        showNotification('info', `Enviando arquivo: ${file.name}...`);
+        const res = await fetch(`${apiUrl}/api/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          // data.path will be "tmp/uploads/filename"
+          newMediaFiles[slotIdx] = data.path;
+          showNotification('success', `Arquivo ${file.name} enviado.`);
+        } else {
+          showNotification('error', `Falha ao enviar arquivo ${file.name}.`);
         }
-      } else {
-        // Offline / Unconnected fallback: Create local object URL
-        const localUrl = URL.createObjectURL(file);
-        newMediaFiles.push(localUrl);
-        showNotification('info', `Carregada mídia local offline: ${file.name}`);
+      } catch (e) {
+        showNotification('error', `Erro na conexão durante o upload de ${file.name}.`);
       }
+    } else {
+      // Offline / Unconnected fallback: Create local object URL
+      const localUrl = URL.createObjectURL(file);
+      newMediaFiles[slotIdx] = localUrl;
+      showNotification('info', `Carregada mídia local offline: ${file.name}`);
     }
 
     updateSceneField(sceneId, 'mediaFiles', newMediaFiles);
-  };
-
-  // Remove media from scene
-  const removeMedia = (sceneId: string, mediaIndex: number) => {
-    const scene = scenes.find(s => s.id === sceneId);
-    if (!scene) return;
-    const updatedMedia = [...scene.mediaFiles];
-    updatedMedia.splice(mediaIndex, 1);
-    updateSceneField(sceneId, 'mediaFiles', updatedMedia);
   };
 
   // Formats JSON payload depending on selector
@@ -313,20 +306,51 @@ export default function App() {
         hwaccel: hwAccel,
         jpeg_quality: jpegQuality,
         cards: scenes.map((scene, i) => {
-          // Construct visual elements based on text narration and media uploads
+          // Construct visual elements based on slots
           const elements: any[] = [];
           
-          // Background media elements
-          scene.mediaFiles.forEach((file) => {
-            const isVid = file.toLowerCase().endsWith('.mp4') || file.toLowerCase().endsWith('.webm') || file.includes('video');
-            elements.push({
-              type: isVid ? 'video' : 'image',
-              content: file,
-              x: 0,
-              y: 0,
-              width: width,
-              height: height
-            });
+          const getSlotsForTemplate = (tmpl: string) => {
+            if (tmpl === 'multiscreen') {
+              return [
+                { x: 180, y: 960, w: 360, h: 1920 },
+                { x: 540, y: 960, w: 360, h: 1920 },
+                { x: 900, y: 960, w: 360, h: 1920 }
+              ];
+            }
+            return [
+              { x: width / 2, y: height / 2, w: width, h: height }
+            ];
+          };
+
+          const templateSlots = getSlotsForTemplate(scene.template);
+          
+          templateSlots.forEach((slot, idx) => {
+            const file = scene.mediaFiles[idx];
+            if (!file || file === 'transparent') {
+              return; // omit element or treat as transparent
+            }
+            if (file.startsWith('#')) {
+              // solid color rect
+              elements.push({
+                type: 'rect',
+                color: file,
+                x: slot.x,
+                y: slot.y,
+                width: slot.w,
+                height: slot.h
+              });
+            } else {
+              // image or video element
+              const isVid = file.toLowerCase().endsWith('.mp4') || file.toLowerCase().endsWith('.webm') || file.includes('video');
+              elements.push({
+                type: isVid ? 'video' : 'image',
+                content: file,
+                x: slot.x,
+                y: slot.y,
+                width: slot.w,
+                height: slot.h
+              });
+            }
           });
 
           // Text overlay narration element
@@ -475,9 +499,9 @@ export default function App() {
 
       {/* Main Container */}
       <main className="w-full max-w-5xl flex flex-col gap-6 my-4">
-        
+
         {/* Connection Bar & Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 w-full">
           <div>
             <div className="flex items-center gap-3">
               <Film className="w-8 h-8 text-indigo-500" />
@@ -490,9 +514,9 @@ export default function App() {
             </p>
           </div>
 
-          {/* Connection URL config */}
-          <div className="flex flex-col items-end gap-1.5 w-full md:w-auto">
-            <div className="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-1.5 w-full md:w-auto">
+          {/* Connection URL config & Project Drawer Button */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+            <div className="flex items-center gap-2 bg-slate-900/80 rounded-xl px-3 py-1.5 w-full md:w-auto">
               {serverConnected ? (
                 <Wifi className="w-4 h-4 text-emerald-400 animate-pulse" />
               ) : (
@@ -514,7 +538,7 @@ export default function App() {
                       checkConnection(apiUrl);
                     }
                   }}
-                  className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs font-mono text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="bg-slate-950 rounded px-1.5 py-0.5 text-xs font-mono text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   autoFocus
                 />
               ) : (
@@ -533,126 +557,161 @@ export default function App() {
                 {serverConnected ? 'Online' : 'Offline'}
               </span>
             </div>
-            
-            {!serverConnected && (
-              <span className="text-[10px] text-amber-500/80 flex items-center gap-1 font-medium">
-                <Info className="w-3 h-3" />
-                Operando localmente. Inicie o 'videogen-server' para renderização.
-              </span>
-            )}
+
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="px-4 py-2 text-xs font-bold text-slate-200 hover:text-white bg-slate-900 hover:bg-slate-850 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-slate-950/20 active:scale-95 cursor-pointer"
+              title="Abrir ajustes e produção"
+            >
+              <Settings className="w-4 h-4 text-indigo-400" />
+              Configurações
+            </button>
           </div>
         </header>
 
         {/* Studio Workspace Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          
-          {/* Left / Center: Active Editor and Timeline */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Active Scene Editor Panel */}
-            {activeScene ? (
-              <SceneCard
-                key={activeScene.id}
-                scene={activeScene}
-                index={scenes.findIndex(s => s.id === activeScene.id)}
-                apiUrl={apiUrl}
-                isFirst={scenes.findIndex(s => s.id === activeScene.id) === 0}
-                isLast={scenes.findIndex(s => s.id === activeScene.id) === scenes.length - 1}
-                onUpdateField={(field, value) => updateSceneField(activeScene.id, field, value)}
-                onDelete={() => deleteScene(activeScene.id)}
-                onAddMedia={(files) => handleMediaUpload(activeScene.id, files)}
-                onRemoveMedia={(mIdx) => removeMedia(activeScene.id, mIdx)}
-                onMoveUp={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'up')}
-                onMoveDown={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'down')}
-              />
-            ) : (
-              <div className="text-center py-20 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 flex flex-col items-center gap-2">
-                <Film className="w-8 h-8 text-slate-700" />
-                <p className="text-sm">Nenhuma cena na timeline.</p>
+        <div className="flex flex-col gap-6 w-full">
+          {/* Active Scene Editor Panel */}
+          {activeScene ? (
+            <SceneCard
+              key={activeScene.id}
+              scene={activeScene}
+              index={scenes.findIndex(s => s.id === activeScene.id)}
+              apiUrl={apiUrl}
+              isFirst={scenes.findIndex(s => s.id === activeScene.id) === 0}
+              isLast={scenes.findIndex(s => s.id === activeScene.id) === scenes.length - 1}
+              onUpdateField={(field, value) => updateSceneField(activeScene.id, field, value)}
+              onDelete={() => deleteScene(activeScene.id)}
+              onAddMediaForSlot={(slotIdx, files) => handleMediaUploadForSlot(activeScene.id, slotIdx, files)}
+              onUpdateMediaForSlot={(slotIdx, val) => {
+                const newMedia = [...activeScene.mediaFiles];
+                newMedia[slotIdx] = val;
+                updateSceneField(activeScene.id, 'mediaFiles', newMedia);
+              }}
+              onMoveUp={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'up')}
+              onMoveDown={() => moveScene(scenes.findIndex(s => s.id === activeScene.id), 'down')}
+              templates={availableTemplates}
+            />
+          ) : (
+            <div className="text-center py-20 bg-slate-900/40 rounded-2xl text-slate-500 flex flex-col items-center gap-2 shadow-inner">
+              <Film className="w-8 h-8 text-slate-700" />
+              <p className="text-sm">Nenhuma cena na timeline.</p>
+              <button 
+                onClick={addScene}
+                className="mt-2 text-indigo-400 hover:text-indigo-300 font-bold text-xs"
+              >
+                Adicionar primeira cena
+              </button>
+            </div>
+          )}
+
+          {/* Horizontal Filmstrip Timeline - Overlapping Deck Style */}
+          {scenes.length > 0 && (
+            <div className="bg-slate-900/60 rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
+              <div className="flex items-center justify-between pb-2.5">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Storyboard Timeline ({scenes.length} cena(s))
+                </span>
                 <button 
                   onClick={addScene}
-                  className="mt-2 text-indigo-400 hover:text-indigo-300 font-bold text-xs"
+                  className="px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-950/40 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
                 >
-                  Adicionar primeira cena
+                  <Plus className="w-3.5 h-3.5" />
+                  Nova Cena
                 </button>
               </div>
-            )}
-
-            {/* Horizontal Filmstrip Timeline */}
-            {scenes.length > 0 && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
-                <div className="flex items-center justify-between border-b border-slate-850 pb-2.5">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                    Timeline do Storyboard ({scenes.length} cena(s))
-                  </span>
-                  <button 
-                    onClick={addScene}
-                    className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-950/40 flex items-center gap-1 transition-all active:scale-95"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    Nova Cena
-                  </button>
-                </div>
-                
-                <div className="flex gap-4 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
-                  {scenes.map((scene, index) => {
-                    const isActive = scene.id === activeSceneId;
-                    const hasMedia = scene.mediaFiles.length > 0;
-                    const mediaUrl = hasMedia ? getFullUrl(scene.mediaFiles[0]) : '';
-                    const isVid = hasMedia && isVideo(scene.mediaFiles[0]);
-                    
-                    return (
-                      <div
-                        key={scene.id}
-                        onClick={() => setActiveSceneId(scene.id)}
-                        className={`flex-shrink-0 w-44 bg-slate-950 border-2 rounded-xl p-2.5 cursor-pointer transition-all flex flex-col gap-2 relative select-none hover:border-slate-700 ${
-                          isActive ? 'border-indigo-600 shadow-md shadow-indigo-950/50' : 'border-slate-850'
-                        }`}
-                      >
-                        {/* Thumbnail frame indicator */}
-                        <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-850 flex items-center justify-center">
-                          {hasMedia ? (
-                            isVid ? (
-                              <video src={mediaUrl} className="w-full h-full object-cover pointer-events-none" muted />
-                            ) : (
-                              <img src={mediaUrl} alt="" className="w-full h-full object-cover pointer-events-none" />
-                            )
+              
+              <div className="flex overflow-x-auto py-4 pl-4 pr-10 -space-x-5 hover:space-x-1.5 transition-all duration-300 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                {scenes.map((scene, index) => {
+                  const isActive = scene.id === activeSceneId;
+                  const hasMedia = scene.mediaFiles.length > 0;
+                  const mediaUrl = hasMedia ? getFullUrl(scene.mediaFiles[0]) : '';
+                  const isVid = hasMedia && isVideo(scene.mediaFiles[0]);
+                  
+                  return (
+                    <div
+                      key={scene.id}
+                      onClick={() => setActiveSceneId(scene.id)}
+                      style={{ zIndex: isActive ? 20 : 10 + index }}
+                      className={`flex-shrink-0 w-44 bg-slate-950 rounded-xl p-2.5 cursor-pointer transition-all flex flex-col gap-2 relative select-none hover:z-30 hover:-translate-y-2 hover:scale-105 shadow-xl ${
+                        isActive 
+                          ? 'ring-2 ring-indigo-600 shadow-indigo-950/80 scale-102 z-20 translate-y-[-2px]' 
+                          : 'hover:ring-1 hover:ring-slate-700'
+                      }`}
+                    >
+                      {/* Thumbnail frame indicator */}
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+                        {hasMedia ? (
+                          isVid ? (
+                            <video src={mediaUrl} className="w-full h-full object-cover pointer-events-none" muted />
                           ) : (
-                            <div className="flex flex-col items-center justify-center text-slate-700 p-2">
-                              <Film className="w-5 h-5 mb-0.5" />
-                              <span className="text-[8px] font-bold uppercase tracking-wider">Vazio</span>
-                            </div>
-                          )}
-                          <span className="absolute top-1 left-1 bg-slate-950/95 text-slate-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded border border-slate-850">
-                            #{String(index + 1).padStart(2, '0')}
-                          </span>
-                          <span className="absolute bottom-1 right-1 bg-slate-950/95 text-slate-300 text-[8px] font-mono px-1 py-0.5 rounded border border-slate-850">
-                            {scene.takeDuration.toFixed(1)}s
-                          </span>
-                        </div>
-                        
-                        {/* Scene text/info */}
-                        <div className="flex flex-col gap-0.5 text-left">
-                          <span className="text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 truncate">
-                            {scene.template === '1' ? 'Reels Dinâmico' : scene.template === '2' ? 'Documentário' : 'Stories Vendas'}
-                          </span>
-                          <p className="text-[10px] text-slate-400 font-medium truncate h-3.5">
-                            {scene.narration || <span className="text-slate-600 italic">Sem narração</span>}
-                          </p>
-                        </div>
+                            <img src={mediaUrl} alt="" className="w-full h-full object-cover pointer-events-none" />
+                          )
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-slate-700 p-2">
+                            <Film className="w-5 h-5 mb-0.5" />
+                            <span className="text-[8px] font-bold uppercase tracking-wider">Vazio</span>
+                          </div>
+                        )}
+                        <span className="absolute top-1 left-1 bg-slate-950/95 text-slate-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded">
+                          #{String(index + 1).padStart(2, '0')}
+                        </span>
+                        <span className="absolute bottom-1 right-1 bg-slate-950/95 text-slate-300 text-[8px] font-mono px-1 py-0.5 rounded">
+                          {scene.takeDuration.toFixed(1)}s
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
+                      
+                      {/* Scene text/info */}
+                      <div className="flex flex-col gap-0.5 text-left">
+                        <span className="text-[9px] font-extrabold uppercase tracking-wider text-indigo-400 truncate">
+                          {scene.template === '1' ? 'Reels Dinâmico' : scene.template === '2' ? 'Documentário' : 'Stories Vendas'}
+                        </span>
+                        <p className="text-[10px] text-slate-400 font-medium truncate h-3.5">
+                          {scene.narration || <span className="text-slate-600 italic">Sem narração</span>}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+          )}
+        </div>
+
+        {/* Drawer Overlay / Backdrop */}
+        {isSidebarOpen && (
+          <div 
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 animate-fadeIn"
+          />
+        )}
+
+        {/* Sliding Drawer Sidebar */}
+        <div 
+          className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-slate-900 border-l border-slate-800 z-50 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+            isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-950/50">
+            <div className="flex items-center gap-2">
+              <Settings className="w-5 h-5 text-indigo-450" />
+              <h2 className="text-sm font-extrabold text-white uppercase tracking-wider">Ajustes & Produção</h2>
+            </div>
+            <button 
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-xs font-bold font-mono border border-slate-800 px-2 cursor-pointer"
+            >
+              Fechar [X]
+            </button>
           </div>
 
-          {/* Right: Global Settings, Preview & Exporter Sidebar */}
-          <div className="lg:col-span-1 flex flex-col gap-6">
+          {/* Drawer Body (Scrollable container) */}
+          <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
             
             {/* Project Global Configuration */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-2.5 flex items-center gap-1.5">
+            <div className="bg-slate-955 border border-slate-850 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-2.5 flex items-center gap-1.5">
                 <Settings className="w-4 h-4 text-indigo-400" />
                 Configurações Globais
               </h3>
@@ -666,7 +725,7 @@ export default function App() {
                   type="text"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-300"
+                  className="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-300"
                   placeholder="ID sem espaços..."
                 />
               </div>
@@ -679,7 +738,7 @@ export default function App() {
                 <select
                   value={globalResolution}
                   onChange={(e) => setGlobalResolution(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                  className="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="1080x1920">Vertical (1080x1920) • Reels / Shorts</option>
                   <option value="1920x1080">Horizontal (1920x1080) • YouTube / Full HD</option>
@@ -697,7 +756,7 @@ export default function App() {
                   <select
                     value={globalFps}
                     onChange={(e) => setGlobalFps(parseInt(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                    className="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                   >
                     <option value="24">24 fps (Cinema)</option>
                     <option value="30">30 fps (Padrão)</option>
@@ -715,7 +774,7 @@ export default function App() {
                     max="31"
                     value={jpegQuality}
                     onChange={(e) => setJpegQuality(Math.min(31, Math.max(1, parseInt(e.target.value) || 2)))}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-center font-mono"
+                    className="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-center font-mono"
                   />
                 </div>
               </div>
@@ -729,18 +788,18 @@ export default function App() {
                   type="text"
                   value={globalBgmUrl}
                   onChange={(e) => setGlobalBgmUrl(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-300 font-mono"
+                  className="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-300 font-mono"
                   placeholder="ex: tmp/uploads/bg_music.mp3"
                 />
               </div>
 
               {/* Hardware Acceleration Checkbox */}
-              <label className="flex items-center gap-2 mt-1 cursor-pointer select-none bg-slate-950 border border-slate-800 px-3 py-2.5 rounded-xl hover:bg-slate-900 transition-colors">
+              <label className="flex items-center gap-2 mt-1 cursor-pointer select-none bg-slate-900 border border-slate-850 px-3 py-2.5 rounded-xl hover:bg-slate-850 transition-colors">
                 <input
                   type="checkbox"
                   checked={hwAccel}
                   onChange={(e) => setHwAccel(e.target.checked)}
-                  className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+                  className="w-4 h-4 accent-indigo-650 rounded cursor-pointer"
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-slate-200">Aceleração por GPU</span>
@@ -749,9 +808,9 @@ export default function App() {
               </label>
             </div>
 
-            {/* Backend Actions & Preview Trigger */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-2.5 flex items-center gap-1.5">
+            {/* Backend Actions & Production Triggers */}
+            <div className="bg-slate-950 border border-slate-850 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-2.5 flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-indigo-400" />
                 Ações de Produção
               </h3>
@@ -762,7 +821,7 @@ export default function App() {
                   type="button"
                   onClick={triggerPreview}
                   disabled={!serverConnected || isPreviewLoading}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-900 text-indigo-400 border border-indigo-950 hover:border-indigo-500/30 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-850 text-indigo-400 border border-indigo-950 hover:border-indigo-500/30 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isPreviewLoading ? (
                     <>
@@ -782,7 +841,7 @@ export default function App() {
                   type="button"
                   onClick={triggerRender}
                   disabled={!serverConnected || scenes.length === 0}
-                  className="w-full py-3 px-4 rounded-xl text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-950/50 hover:shadow-indigo-950/70 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98"
+                  className="w-full py-3 px-4 rounded-xl text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-950/50 hover:shadow-indigo-950/70 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
                 >
                   <Play className="w-4 h-4 fill-white" />
                   Renderizar Vídeo Completo
@@ -791,8 +850,11 @@ export default function App() {
                 {/* Local JSON compiler */}
                 <button
                   type="button"
-                  onClick={() => handleGenerateJson()}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-center gap-1.5"
+                  onClick={() => {
+                    setIsSidebarOpen(false); // Close drawer to show JSON export panel
+                    handleGenerateJson();
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <FileText className="w-4 h-4" />
                   Gerar Estrutura JSON
@@ -801,18 +863,18 @@ export default function App() {
 
               {/* Visual Preview Modal/Viewer */}
               {previewImage && (
-                <div className="mt-2 p-2 bg-slate-950 border border-slate-800 rounded-xl relative group">
-                  <span className="absolute top-3 left-3 bg-slate-900/90 text-indigo-400 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/20">
+                <div className="mt-2 p-2 bg-slate-900 border border-slate-850 rounded-xl relative group">
+                  <span className="absolute top-3 left-3 bg-slate-955/90 text-indigo-400 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/20">
                     PRÉVIA DO FRAME 1
                   </span>
                   <img
                     src={previewImage}
                     alt="Frame preview"
-                    className="w-full h-auto rounded-lg border border-slate-900"
+                    className="w-full h-auto rounded-lg border border-slate-950"
                   />
                   <button
                     onClick={() => setPreviewImage(null)}
-                    className="absolute top-3 right-3 bg-slate-900/90 text-slate-400 hover:text-white p-1 rounded-md text-[8px]"
+                    className="absolute top-3 right-3 bg-slate-955/90 text-slate-400 hover:text-white p-1 rounded-md text-[8px]"
                   >
                     Fechar
                   </button>

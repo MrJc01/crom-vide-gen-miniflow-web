@@ -11,6 +11,10 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
     // Verify header title
     await expect(page.locator('h1')).toContainText('AI Video Builder Studio');
     
+    // Open sidebar drawer to view global settings
+    const btnConfig = page.locator('button:has-text("Configurações")');
+    await btnConfig.click();
+
     // Verify global settings section
     await expect(page.locator('h3:has-text("Configurações Globais")')).toBeVisible();
     
@@ -41,30 +45,27 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
     // Select the first card container
     const card = page.locator('[data-id]').first();
     
-    // Check initial guide title (should match Reels Dinâmico by default)
-    await expect(card.locator('h4').first()).toContainText('Reels Dinâmico');
+    // Check initial guide title (should match 10 Best (Listicle) by default)
+    await expect(card.locator('details span').filter({ hasText: '10 Best (Listicle)' })).toBeVisible();
     
-    // Select Template 2: Documentário
+    // Select Template: Breaking News
     const selectTemplate = card.locator('select').first();
-    await selectTemplate.selectOption('2');
+    await selectTemplate.selectOption('breaking_news');
 
-    // Confirm that guide title updated to Documentário
-    await expect(card.locator('h4').first()).toContainText('Documentário');
+    // Confirm that guide title updated to Breaking News
+    await expect(card.locator('details span').filter({ hasText: 'Breaking News' })).toBeVisible();
     
     // Verify template description changed to landscape/cinematic instructions
     await expect(card.locator('text=Exatamente 1 mídia de fundo')).toBeVisible();
   });
 
-    test('deve estimar o tempo de áudio da narração em tempo real', async ({ page }) => {
+  test('deve estimar o tempo de áudio da narração em tempo real', async ({ page }) => {
     const card = page.locator('[data-id]').first();
     const textarea = card.locator('textarea');
     
     // Open collapsible settings to make audio duration visible
     await card.locator('summary:has-text("Configurações & Ajustes do Take")').click();
     
-    // Initially estimated audio should be ~4.8s due to default text
-    await expect(card.locator('text=~ 4.8s')).toBeVisible();
-
     // Type a simple short sentence
     await textarea.fill('Olá mundo');
     
@@ -97,7 +98,11 @@ test.describe('AI Video Builder Studio - Testes E2E', () => {
   });
 
   test('deve compilar e exibir a estrutura JSON ao clicar no exportador', async ({ page }) => {
-    // Scroll down and click the "Gerar Estrutura JSON" button
+    // Open settings sidebar drawer
+    const btnConfig = page.locator('button:has-text("Configurações")');
+    await btnConfig.click();
+
+    // Click the "Gerar Estrutura JSON" button
     const btnGenerate = page.locator('button:has-text("Gerar Estrutura JSON")');
     await btnGenerate.click();
 

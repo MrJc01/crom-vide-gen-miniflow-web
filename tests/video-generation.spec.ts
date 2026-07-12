@@ -94,6 +94,10 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
+    // Open settings sidebar drawer to make render queue visible
+    const btnConfig = page.locator('button:has-text("Configurações")');
+    await btnConfig.click();
+
     // Wait for server connection — the "Fila de Renderização" section only appears when connected
     const renderQueueHeading = page.locator('text=Fila de Renderização');
     await expect(renderQueueHeading).toBeVisible({ timeout: 8000 });
@@ -112,7 +116,7 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
     await expect(jobTitle).toBeVisible({ timeout: 8000 });
 
     // Locate the newest job in the list
-    const newestJob = page.locator('[class*="bg-slate-950"][class*="border-slate-800"]').filter({ hasText: 'meu_video_projeto' }).first();
+    const newestJob = page.locator('div.job-item').filter({ hasText: 'meu_video_projeto' }).first();
 
     console.log('Validando renderização com sucesso...');
     const successBadge = newestJob.locator('span:has-text("CONCLUÍDO")');
@@ -146,6 +150,10 @@ test.describe('Estúdio Web - Geração de Vídeo e Integração API', () => {
     // Fill in a narration
     const textarea = page.locator('[data-id] textarea').first();
     await textarea.fill('Texto de teste para validação do formato engine.');
+
+    // Open settings sidebar drawer to make JSON exporter button visible
+    const btnConfig = page.locator('button:has-text("Configurações")');
+    await btnConfig.click();
 
     // Click the "Gerar Estrutura JSON" button
     const btnJson = page.locator('button:has-text("Gerar Estrutura JSON")');

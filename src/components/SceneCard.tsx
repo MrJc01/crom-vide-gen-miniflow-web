@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Scene } from '../types/video';
 import { MediaManager } from './MediaManager';
+import defaultTemplateBg from '../../assets/images/default_template_preview.png';
 import { 
   Trash2, 
   ChevronUp, 
@@ -24,13 +25,14 @@ interface SceneCardProps {
   index: number;
   onUpdateField: (field: keyof Scene, value: any) => void;
   onDelete: () => void;
-  onAddMedia: (files: FileList) => void;
-  onRemoveMedia: (mediaIndex: number) => void;
+  onAddMediaForSlot: (slotIdx: number, files: FileList) => void;
+  onUpdateMediaForSlot: (slotIdx: number, value: string) => void;
   apiUrl: string;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   isFirst: boolean;
   isLast: boolean;
+  templates?: string[];
 }
 
 interface TemplateGuide {
@@ -44,32 +46,52 @@ interface TemplateGuide {
 const getTemplateGuide = (template: string): TemplateGuide => {
   switch (template) {
     case '1':
+    case '10_best':
       return {
-        title: 'Reels Dinâmico',
+        title: '10 Best (Listicle)',
         allowed: 'Vídeos curtos e Imagens',
-        limit: 'Até 5 mídias recomendadas (para cortes dinâmicos)',
-        timing: 'Duração recomendada: 3 a 5 segundos',
+        limit: 'Até 10 mídias recomendadas (para cortes dinâmicos)',
+        timing: 'Duração recomendada: 5 a 15 segundos',
         instructions: 'O motor corta entre as mídias carregadas. Para trocar de mídia, clique na lixeira vermelha ao passar o mouse sobre a miniatura no box abaixo e adicione outra.'
       };
     case '2':
+    case 'breaking_news':
       return {
-        title: 'Documentário',
+        title: 'Breaking News',
         allowed: 'Imagens HD e vídeos cinematográficos',
         limit: 'Exatamente 1 mídia de fundo',
         timing: 'Duração recomendada: 6 a 15 segundos',
         instructions: 'Focado em narrativa contínua. Carregue apenas 1 mídia principal de fundo. Para trocar, remova a atual na lixeira e adicione a nova.'
       };
     case '3':
+    case 'trendy_stories':
+    case 'stories_vendas':
       return {
-        title: 'Stories Vendas',
+        title: 'Trendy Stories',
         allowed: 'Fotos verticais de produtos e banners promocionais',
         limit: '1 imagem central do produto + opcional logo/overlay',
         timing: 'Duração recomendada: 5 a 10 segundos',
         instructions: 'Layout formatado com destaque para vendas e link de ação simulated. Remova o produto antigo para fazer upload de um novo.'
       };
+    case 'multiscreen':
+      return {
+        title: 'Multiscreen (Collage)',
+        allowed: 'Múltiplas fotos e vídeos',
+        limit: 'Até 4 mídias simultâneas na tela',
+        timing: 'Duração recomendada: 3 a 8 segundos',
+        instructions: 'O motor divide o canvas para exibir múltiplos ângulos das mídias carregadas.'
+      };
+    case 'teste':
+      return {
+        title: 'Template de Teste',
+        allowed: 'Qualquer imagem/vídeo',
+        limit: 'Até 2 mídias',
+        timing: 'Duração recomendada: 2 a 5 segundos',
+        instructions: 'Ambiente sandbox para testar rendering rápido.'
+      };
     default:
       return {
-        title: 'Template Geral',
+        title: template.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
         allowed: 'Imagens e Vídeos',
         limit: 'Qualquer quantidade',
         timing: 'Sem limites recomendados',
@@ -83,14 +105,21 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   index,
   onUpdateField,
   onDelete,
-  onAddMedia,
-  onRemoveMedia,
+  onAddMediaForSlot,
+  onUpdateMediaForSlot,
   apiUrl,
   onMoveUp,
   onMoveDown,
   isFirst,
   isLast,
+  templates = ['10_best', 'breaking_news', 'multiscreen', 'teste', 'trendy_stories']
 }) => {
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+
+  useEffect(() => {
+    setIsGuideOpen(true);
+  }, [scene.template]);
+
   const handleNarrationChange = (text: string) => {
     // Timing rule: ~140 words per minute (~2.3 words per second)
     const words = text.trim().split(/\s+/).filter(w => w.length > 0);
@@ -125,40 +154,48 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   };
 
   const isTimingShort = scene.takeDuration < scene.audioDuration;
-  const isVertical = scene.resolution.includes('1080x1920') || scene.resolution.includes('2160x3840');
-  const guide = getTemplateGuide(scene.template);
+  const isVertical = scene.resolution === '1080x1920' || scene.resolution === '2160x3840';
 
-  // Background media source in real-time preview
-  const firstMedia = scene.mediaFiles.length > 0 ? scene.mediaFiles[0] : null;
-  const backgroundSrc = firstMedia ? getFullUrl(firstMedia) : null;
-  const isBgVideo = firstMedia ? isVideo(firstMedia) : false;
+  // Slot calculations
+  const primaryMedia = scene.mediaFiles[0] || '';
+  const isBgColor = primaryMedia.startsWith('#');
+  const isBgTrans = primaryMedia === 'transparent';
+  const hasBgMedia = primaryMedia && !isBgColor && !isBgTrans;
+  const backgroundSrc = hasBgMedia ? getFullUrl(primaryMedia) : (!isBgColor && !isBgTrans ? defaultTemplateBg : '');
+  const isBgVideo = hasBgMedia && isVideo(primaryMedia);
+  const guide = getTemplateGuide(scene.template);
 
   return (
     <div 
-      className="w-full bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 sm:p-6 flex flex-col gap-5 transition-all hover:border-slate-700/80 group"
+      className="bg-slate-900/60 rounded-2xl p-5 shadow-xl flex flex-col gap-6"
       data-id={scene.id}
     >
       {/* Top Header Card */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
         <div className="flex items-center gap-3">
-          <span className="bg-indigo-600/20 text-indigo-400 font-extrabold px-3 py-1 rounded-lg text-xs uppercase tracking-wider border border-indigo-500/30">
+          <span className="bg-indigo-600/20 text-indigo-400 font-extrabold px-3 py-1 rounded-lg text-xs uppercase tracking-wider">
             CENA {String(index + 1).padStart(2, '0')}
           </span>
           <select
             value={scene.template}
             onChange={(e) => onUpdateField('template', e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer hover:bg-slate-900/50 transition-colors"
+            className="bg-slate-950 text-slate-300 text-xs rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer hover:bg-slate-900/50 transition-colors"
           >
-            <option value="1">Template 1: Reels Dinâmico</option>
-            <option value="2">Template 2: Documentário</option>
-            <option value="3">Template 3: Stories Vendas</option>
+            {templates.map(tmpl => {
+              const label = tmpl.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+              return (
+                <option key={tmpl} value={tmpl}>
+                  {label}
+                </option>
+              );
+            })}
           </select>
         </div>
 
         {/* Scene control buttons */}
         <div className="flex items-center gap-2">
           {/* Ordering buttons */}
-          <div className="flex items-center bg-slate-950 rounded-lg p-0.5 border border-slate-800/80">
+          <div className="flex items-center bg-slate-950 rounded-lg p-0.5">
             <button
               type="button"
               onClick={onMoveUp}
@@ -187,7 +224,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             </button>
           </div>
 
-          <span className="text-xs font-mono text-slate-500 bg-slate-950 px-2.5 py-1 rounded-md border border-slate-800 flex items-center gap-1.5">
+          <span className="text-xs font-mono text-slate-500 bg-slate-950 px-2.5 py-1 rounded-md flex items-center gap-1.5">
             {isVertical ? <Smartphone className="w-3.5 h-3.5 text-indigo-400" /> : <Tv className="w-3.5 h-3.5 text-indigo-400" />}
             {scene.resolution === '1920x1080' ? '1080p • 16:9' : 
              scene.resolution === '1080x1920' ? '1080p • 9:16' : 
@@ -197,7 +234,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           <button
             type="button"
             onClick={onDelete}
-            className="p-1.5 rounded-lg text-red-500 hover:text-red-400 hover:bg-red-950/20 border border-transparent hover:border-red-900/30 transition-colors"
+            className="p-1.5 rounded-lg text-red-500 hover:text-red-400 hover:bg-red-950/20 transition-colors"
             title="Deletar cena"
           >
             <Trash2 className="w-4 h-4" />
@@ -210,64 +247,34 @@ export const SceneCard: React.FC<SceneCardProps> = ({
         
         {/* LEFT COLUMN: EDITOR FORM (8 COLS) */}
         <div className="lg:col-span-8 flex flex-col gap-5">
-          
-          {/* Dynamic Template Rule / Guidelines */}
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 flex flex-col gap-2 relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-indigo-600/10 text-indigo-400 border-l border-b border-indigo-500/25 px-2.5 py-0.5 rounded-bl-lg text-[9px] font-extrabold uppercase tracking-wider">
-              Diretrizes do Layout
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-indigo-400 shrink-0" />
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                {guide.title}
-              </h4>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] mt-1">
-              <div>
-                <span className="text-slate-500 uppercase tracking-wider font-extrabold block">Tipos Permitidos</span>
-                <span className="text-slate-300 font-semibold">{guide.allowed}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 uppercase tracking-wider font-extrabold block">Quantidade Permitida</span>
-                <span className="text-slate-300 font-semibold">{guide.limit}</span>
-              </div>
-            </div>
-
-            <p className="text-[10px] text-slate-400 mt-1 leading-relaxed border-t border-slate-900 pt-2 font-medium">
-              <span className="text-indigo-400 font-bold">Como trocar:</span> {guide.instructions}
-            </p>
-          </div>
-
-          {/* Grid Mídias e Roteiro */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
             {/* Mídias */}
-            <div className="md:col-span-1">
+            <div className="md:col-span-2">
               <MediaManager
+                template={scene.template}
                 mediaFiles={scene.mediaFiles}
-                onAddMedia={onAddMedia}
-                onRemoveMedia={onRemoveMedia}
+                onUpdateMediaForSlot={onUpdateMediaForSlot}
+                onAddMediaForSlot={onAddMediaForSlot}
                 apiUrl={apiUrl}
               />
             </div>
 
             {/* Narração */}
-            <div className="md:col-span-2 flex flex-col">
+            <div className="md:col-span-3 flex flex-col">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                 Texto de Narração / Prompt de Voz
               </label>
               <textarea
                 value={scene.narration}
                 onChange={(e) => handleNarrationChange(e.target.value)}
-                className="w-full flex-1 min-h-[110px] p-3 text-sm text-slate-200 bg-slate-950 border border-slate-800 rounded-xl focus:ring-1 focus:ring-indigo-500 focus:bg-slate-950/50 transition-all resize-none outline-none placeholder:text-slate-600"
+                className="w-full flex-1 min-h-[110px] p-3 text-sm text-slate-200 bg-slate-955 rounded-xl focus:ring-1 focus:ring-indigo-500 focus:bg-slate-955/50 transition-all resize-none outline-none placeholder:text-slate-600"
                 placeholder="Digite a narração da cena aqui. O tempo de áudio será estimado automaticamente..."
               />
             </div>
           </div>
 
           {/* Collapsible Settings Block */}
-          <details className="group border border-slate-850 rounded-xl overflow-hidden bg-slate-950/40">
+          <details className="group rounded-xl overflow-hidden bg-slate-955/40">
             <summary className="flex items-center justify-between p-3 text-xs font-bold text-slate-400 bg-slate-950 cursor-pointer hover:bg-slate-900/60 select-none transition-colors">
               <span className="flex items-center gap-2 uppercase tracking-wider">
                 <Settings className="w-3.5 h-3.5 text-indigo-400" />
@@ -276,12 +283,12 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               <ChevronDown className="w-4 h-4 text-slate-500 transition-transform group-open:rotate-180" />
             </summary>
             
-            <div className="p-4 border-t border-slate-850 bg-slate-950/20 flex flex-col gap-4">
+            <div className="p-4 bg-slate-955/20 flex flex-col gap-4">
               {/* Timing Controls Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-850/80">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-900/50">
                 {/* Tempo de Áudio Estimado */}
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+                  <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
                     <Mic className="w-3.5 h-3.5" />
                   </div>
                   <div>
@@ -294,7 +301,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                   </div>
                   {isTimingShort && (
                     <div 
-                      className="ml-auto bg-amber-950/40 text-amber-400 border border-amber-900/50 rounded-lg px-2 py-0.5 flex items-center gap-1 animate-pulse"
+                      className="ml-auto bg-amber-955/40 text-amber-400 border border-amber-900/50 rounded-lg px-2 py-0.5 flex items-center gap-1 animate-pulse"
                       title="O tempo de tela é menor do que o tempo de narração!"
                     >
                       <AlertTriangle className="w-3 h-3 text-amber-500" />
@@ -313,7 +320,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                       Tempo de exibição
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 w-24 focus-within:ring-1 focus-within:ring-indigo-500 transition-shadow">
+                  <div className="flex items-center gap-1.5 bg-slate-900 rounded-lg px-2.5 py-1 w-24 focus-within:ring-1 focus-within:ring-indigo-500 transition-shadow">
                     <input
                       type="number"
                       step="0.1"
@@ -357,7 +364,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                   <select
                     value={scene.subtitleStyle}
                     onChange={(e) => onUpdateField('subtitleStyle', e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 text-slate-300 rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                    className="w-full bg-slate-900 text-slate-300 rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                   >
                     <option value="yellow">Destaque Amarelo</option>
                     <option value="minimalist">Branco Minimalista</option>
@@ -367,10 +374,47 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               </div>
             </div>
           </details>
+
+          {/* About Template & Guidelines Accordion (Collapsible, opens automatically) */}
+          <details 
+            open={isGuideOpen} 
+            onToggle={(e) => setIsGuideOpen(e.currentTarget.open)}
+            className="group rounded-xl overflow-hidden bg-slate-950/40"
+          >
+            <summary className="flex items-center justify-between p-3 text-xs font-bold text-slate-400 bg-slate-950 cursor-pointer hover:bg-slate-900/60 select-none transition-colors">
+              <span className="flex items-center gap-2 uppercase tracking-wider">
+                <Info className="w-3.5 h-3.5 text-indigo-400" />
+                Sobre o Template & Diretrizes
+              </span>
+              <ChevronDown className="w-4 h-4 text-slate-500 transition-transform group-open:rotate-180" />
+            </summary>
+            
+            <div className="p-4 bg-slate-955/20 flex flex-col gap-3 text-xs">
+              <div className="flex items-center gap-2 font-bold text-slate-200">
+                <span className="bg-indigo-600/10 text-indigo-400 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded">
+                  {guide.title}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-[10px] text-slate-400">
+                <div>
+                  <span className="font-extrabold text-slate-500 uppercase tracking-wider block mb-0.5">Tipos Permitidos</span>
+                  <span className="font-semibold text-slate-300">{guide.allowed}</span>
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-500 uppercase tracking-wider block mb-0.5">Quantidade de Mídias</span>
+                  <span className="font-semibold text-slate-300">{guide.limit}</span>
+                </div>
+              </div>
+              <div className="text-[10px] text-slate-400 leading-relaxed pt-2">
+                <span className="text-indigo-400 font-bold uppercase tracking-wider block mb-0.5">Instruções de Troca</span>
+                {guide.instructions}
+              </div>
+            </div>
+          </details>
         </div>
 
         {/* RIGHT COLUMN: LIVE CANVAS PREVIEW (4 COLS) */}
-        <div className="lg:col-span-4 flex flex-col gap-3.5 border-t lg:border-t-0 lg:border-l border-slate-800 pt-5 lg:pt-0 lg:pl-6 w-full">
+        <div className="lg:col-span-4 flex flex-col gap-3.5 pt-5 lg:pt-0 lg:pl-6 w-full">
           <div className="flex items-center justify-between w-full">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Preview do Layout
@@ -381,40 +425,89 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           </div>
 
           {/* Simulator Canvas Wrapper */}
-          <div className="w-full flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-800/50 shadow-inner min-h-[350px]">
+          <div className="w-full flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 shadow-inner min-h-[350px]">
             {isVertical ? (
               /* SMARTPHONE FRAME (9:16 Aspect Ratio Mockup) - Responsive max-width */
               <div className="aspect-[9/16] w-full max-w-[210px] sm:max-w-[240px] md:max-w-[260px] lg:max-w-full xl:max-w-[280px] rounded-[2rem] border-8 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300">
                 {/* Simulated Notch / iPhone Island */}
                 <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 bg-slate-950 rounded-full z-30" />
                 
-                {/* Background rendering inside phone */}
-                {backgroundSrc ? (
-                  isBgVideo ? (
-                    <video 
-                      src={backgroundSrc} 
-                      autoPlay 
-                      muted 
-                      loop 
-                      className="absolute inset-0 w-full h-full object-cover z-0" 
+                {scene.template === 'multiscreen' ? (
+                  /* SPLIT MULTISCREEN MOCKUP PREVIEW */
+                  <div className="absolute inset-0 flex z-0">
+                    {[0, 1, 2].map((slotIdx) => {
+                      const media = scene.mediaFiles[slotIdx] || '';
+                      const isCol = media.startsWith('#');
+                      const isTr = media === 'transparent';
+                      const hasMed = media && !isCol && !isTr;
+                      const srcUrl = hasMed ? getFullUrl(media) : defaultTemplateBg;
+                      const isVid = hasMed && isVideo(media);
+
+                      return (
+                        <div key={slotIdx} className="flex-1 h-full border-r border-slate-950/50 last:border-r-0 relative overflow-hidden bg-slate-950">
+                          {hasMed ? (
+                            isVid ? (
+                              <video src={srcUrl} autoPlay muted loop className="w-full h-full object-cover" />
+                            ) : (
+                              <img src={srcUrl} alt="" className="w-full h-full object-cover" />
+                            )
+                          ) : isCol ? (
+                            <div className="w-full h-full" style={{ backgroundColor: media }} />
+                          ) : isTr ? (
+                            <div 
+                              className="w-full h-full" 
+                              style={{
+                                backgroundImage: 'linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%)',
+                                backgroundSize: '10px 10px',
+                                backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px',
+                                backgroundColor: '#0f172a'
+                              }}
+                            />
+                          ) : (
+                            <img src={defaultTemplateBg} alt="" className="w-full h-full object-cover opacity-80" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* STANDARD SINGLE BG PREVIEW */
+                  hasBgMedia ? (
+                    isBgVideo ? (
+                      <video 
+                        src={backgroundSrc} 
+                        autoPlay 
+                        muted 
+                        loop 
+                        className="absolute inset-0 w-full h-full object-cover z-0" 
+                      />
+                    ) : (
+                      <img 
+                        src={backgroundSrc} 
+                        alt="Preview Fundo" 
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        className="absolute inset-0 w-full h-full object-cover z-0" 
+                      />
+                    )
+                  ) : isBgColor ? (
+                    <div className="absolute inset-0 z-0" style={{ backgroundColor: primaryMedia }} />
+                  ) : isBgTrans ? (
+                    <div 
+                      className="absolute inset-0 z-0" 
+                      style={{
+                        backgroundImage: 'linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%)',
+                        backgroundSize: '16px 16px',
+                        backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+                        backgroundColor: '#0f172a'
+                      }}
                     />
                   ) : (
                     <img 
-                      src={backgroundSrc} 
+                      src={defaultTemplateBg} 
                       alt="Preview Fundo" 
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      className="absolute inset-0 w-full h-full object-cover z-0" 
+                      className="absolute inset-0 w-full h-full object-cover z-0 opacity-80" 
                     />
                   )
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-4 text-center z-0">
-                    <span className="text-slate-600 text-[10px] font-bold block uppercase tracking-wider mb-1">
-                      Sem mídia
-                    </span>
-                    <span className="text-[8px] text-slate-700">
-                      Adicione imagens/vídeos ao take
-                    </span>
-                  </div>
                 )}
 
                 {/* Template Specific Overlays inside Phone */}
@@ -483,33 +576,82 @@ export const SceneCard: React.FC<SceneCardProps> = ({
               /* TV/MONITOR FRAME (16:9 Aspect Ratio Mockup) - Responsive max-width */
               <div className="aspect-[16/9] w-full max-w-[310px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-full xl:max-w-[420px] rounded-xl border-4 border-slate-950 bg-slate-900 relative overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300">
                 
-                {/* Background rendering inside TV */}
-                {backgroundSrc ? (
-                  isBgVideo ? (
-                    <video 
-                      src={backgroundSrc} 
-                      autoPlay 
-                      muted 
-                      loop 
-                      className="absolute inset-0 w-full h-full object-cover z-0" 
+                {scene.template === 'multiscreen' ? (
+                  /* SPLIT MULTISCREEN MOCKUP PREVIEW */
+                  <div className="absolute inset-0 flex z-0">
+                    {[0, 1, 2].map((slotIdx) => {
+                      const media = scene.mediaFiles[slotIdx] || '';
+                      const isCol = media.startsWith('#');
+                      const isTr = media === 'transparent';
+                      const hasMed = media && !isCol && !isTr;
+                      const srcUrl = hasMed ? getFullUrl(media) : defaultTemplateBg;
+                      const isVid = hasMed && isVideo(media);
+
+                      return (
+                        <div key={slotIdx} className="flex-1 h-full border-r border-slate-950/50 last:border-r-0 relative overflow-hidden bg-slate-955">
+                          {hasMed ? (
+                            isVid ? (
+                              <video src={srcUrl} autoPlay muted loop className="w-full h-full object-cover" />
+                            ) : (
+                              <img src={srcUrl} alt="" className="w-full h-full object-cover" />
+                            )
+                          ) : isCol ? (
+                            <div className="w-full h-full" style={{ backgroundColor: media }} />
+                          ) : isTr ? (
+                            <div 
+                              className="w-full h-full" 
+                              style={{
+                                backgroundImage: 'linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%)',
+                                backgroundSize: '10px 10px',
+                                backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px',
+                                backgroundColor: '#0f172a'
+                              }}
+                            />
+                          ) : (
+                            <img src={defaultTemplateBg} alt="" className="w-full h-full object-cover opacity-80" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* STANDARD SINGLE BG PREVIEW */
+                  hasBgMedia ? (
+                    isBgVideo ? (
+                      <video 
+                        src={backgroundSrc} 
+                        autoPlay 
+                        muted 
+                        loop 
+                        className="absolute inset-0 w-full h-full object-cover z-0" 
+                      />
+                    ) : (
+                      <img 
+                        src={backgroundSrc} 
+                        alt="Preview Fundo" 
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        className="absolute inset-0 w-full h-full object-cover z-0" 
+                      />
+                    )
+                  ) : isBgColor ? (
+                    <div className="absolute inset-0 z-0" style={{ backgroundColor: primaryMedia }} />
+                  ) : isBgTrans ? (
+                    <div 
+                      className="absolute inset-0 z-0" 
+                      style={{
+                        backgroundImage: 'linear-gradient(45deg, #1e293b 25%, transparent 25%), linear-gradient(-45deg, #1e293b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1e293b 75%), linear-gradient(-45deg, transparent 75%, #1e293b 75%)',
+                        backgroundSize: '16px 16px',
+                        backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+                        backgroundColor: '#0f172a'
+                      }}
                     />
                   ) : (
                     <img 
-                      src={backgroundSrc} 
+                      src={defaultTemplateBg} 
                       alt="Preview Fundo" 
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      className="absolute inset-0 w-full h-full object-cover z-0" 
+                      className="absolute inset-0 w-full h-full object-cover z-0 opacity-80" 
                     />
                   )
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-4 text-center z-0">
-                    <span className="text-slate-600 text-[10px] font-bold block uppercase tracking-wider mb-1">
-                      Sem mídia
-                    </span>
-                    <span className="text-[8px] text-slate-700">
-                      Adicione imagens/vídeos ao take
-                    </span>
-                  </div>
                 )}
 
                 {/* Template Specific Overlays inside TV */}
@@ -525,7 +667,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 {scene.subtitleStyle !== 'none' && scene.narration.trim() && (
                   <div className="absolute bottom-[13%] left-1/2 -translate-x-1/2 w-[85%] z-20 text-center">
                     {scene.subtitleStyle === 'yellow' ? (
-                      <span className="bg-slate-950/80 text-yellow-400 font-extrabold text-[9px] uppercase px-2 py-0.5 rounded border border-yellow-400/25 leading-tight inline-block shadow-lg">
+                      <span className="bg-slate-955/80 text-yellow-400 font-extrabold text-[9px] uppercase px-2 py-0.5 rounded leading-tight inline-block shadow-lg">
                         {scene.narration}
                       </span>
                     ) : (
@@ -539,7 +681,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             )}
           </div>
 
-          <div className="text-[10px] text-slate-500 bg-slate-950/30 p-2 rounded-lg border border-slate-800/40 text-center leading-relaxed w-full">
+          <div className="text-[10px] text-slate-500 bg-slate-950/30 p-2 rounded-lg text-center leading-relaxed w-full">
             Mídias e legendas serão renderizadas fisicamente no arquivo final nas posições e estilos configurados.
           </div>
         </div>
